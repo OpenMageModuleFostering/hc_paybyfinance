@@ -1,0 +1,5 @@
+<?php if ($this->hasFinance()) : ?>
+    <div class="productlist-paybyfinance-label">
+        <?php echo $this->__('Finance Available From %s', $this->getFinanceFromPrice()) ?>
+    </div>
+<?php endif; ?>

@@ -38,10 +38,10 @@ class HC_PayByFinance_NotificationController extends Mage_Core_Controller_Front_
         $parameters = $this->getRequest()->getParams();
         $helper = Mage::helper('paybyfinance');
 
-        if (!array_key_exists('order_ref', $parameters)
-            || !is_numeric($parameters['order_ref'])
+        if (!array_key_exists('supplierReference', $parameters)
+            || !is_numeric($parameters['supplierReference'])
             || !array_key_exists('status', $parameters)
-            || !array_key_exists('applicationNo', $parameters)
+            || !array_key_exists('applicationNumber', $parameters)
         ) {
             $helper->log(
                 'Error in notification parameters: ' . $helper->arrayDump($parameters),
@@ -51,7 +51,7 @@ class HC_PayByFinance_NotificationController extends Mage_Core_Controller_Front_
             die();
         }
 
-        $orderId = $parameters['order_ref'];
+        $orderId = $parameters['supplierReference'];
 
         $order = Mage::getModel('sales/order')->load($orderId);
         if (!$order->getId()) {
@@ -59,6 +59,11 @@ class HC_PayByFinance_NotificationController extends Mage_Core_Controller_Front_
             echo "0";
             die();
         }
+
+        $helper->log(
+            'Notification for order: ' . $orderId . "\n" . $helper->arrayDump($parameters),
+            'notification'
+        );
 
         $notificationHelper = Mage::helper('paybyfinance/notification');
         $result = $notificationHelper->processOrder($order, $parameters);

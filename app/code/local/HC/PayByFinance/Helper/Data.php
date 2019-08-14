@@ -156,8 +156,10 @@ class HC_PayByFinance_Helper_Data extends Mage_Core_Helper_Data
             || $item instanceof Mage_Sales_Model_Order_Item
         ) {
             $product = $item->getProduct();
+            $price = $item->getPrice();
         } elseif ($item instanceof Mage_Catalog_Model_Product) {
             $product = $item;
+            $price = $product->getFinalPrice();
         }
 
         if ($product->getPaybyfinanceEnable() == $options::VALUES_DISABLE) {
@@ -181,7 +183,7 @@ class HC_PayByFinance_Helper_Data extends Mage_Core_Helper_Data
             return false;
         }
         $minPriceProduct = Mage::getStoreConfig($helper::XML_PATH_MINIMUM_PRICE_PRODUCT);
-        if ($product->getFinalPrice() < $minPriceProduct) {
+        if ($price < $minPriceProduct) {
             return false;
         }
 
@@ -212,15 +214,12 @@ class HC_PayByFinance_Helper_Data extends Mage_Core_Helper_Data
         if (!file_exists(Mage::getBaseDir('var').'/log/paybyfinance')) {
             mkdir(Mage::getBaseDir('var').'/log/paybyfinance');
         }
+
         if ($type == 'log') {
             Mage::log($data, null, self::ERROR_LOG_PATH_LOG);
-        }
-
-        if ($type == 'post') {
+        } elseif ($type == 'post') {
             Mage::log($data, null, self::ERROR_LOG_PATH_POST);
-        }
-
-        if ($type == 'notification') {
+        } elseif ($type == 'notification') {
             Mage::log($data, null, self::ERROR_LOG_PATH_NOTIFICATION);
         }
 
@@ -294,6 +293,20 @@ class HC_PayByFinance_Helper_Data extends Mage_Core_Helper_Data
             $text .= $key . ': ' . $val . PHP_EOL;
         }
         return $text;
+    }
+
+    /**
+     * Sanitize Product Name
+     * Allow chars: 0-9 A-Z a-z . - _ ( ) + @ : / ? '
+     *
+     * @param string $productName Product name
+     *
+     * @return string Cleaned string
+     */
+    public function sanitizeProductName($productName)
+    {
+        $cleanedName = preg_replace('/[^a-zA-Z0-9\s@\.\-\(\)\+:\/\?\']/', '', $productName);
+        return $cleanedName;
     }
 
     /**

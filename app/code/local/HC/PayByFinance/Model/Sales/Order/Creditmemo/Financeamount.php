@@ -54,9 +54,11 @@ class HC_PayByFinance_Model_Sales_Order_Creditmemo_FInanceamount
         $creditmemo->setFinanceAmount($amount);
         $creditmemo->setBaseFinanceAmount($order->getBaseFinanceAmount());
 
-        $creditmemo->setGrandTotal($creditmemo->getGrandTotal() + $creditmemo->getFinanceAmount());
+        $creditmemo->setGrandTotal(
+            $creditmemo->getGrandTotal() - abs($creditmemo->getFinanceAmount())
+        );
         $creditmemo->setBaseGrandTotal(
-            $creditmemo->getBaseGrandTotal() - $creditmemo->getBaseFinanceAmount()
+            $creditmemo->getBaseGrandTotal() - abs($creditmemo->getBaseFinanceAmount())
         );
 
         return $this;

@@ -2,7 +2,7 @@
 <config>
     <modules>
         <HC_PayByFinance>
-            <version>1.0.4</version>
+            <version>1.0.5</version>
         </HC_PayByFinance>
     </modules>
     <global>
@@ -175,6 +175,24 @@
                     </paybyfinance_salesordersaveObserver>
                 </observers>
             </sales_order_save_after>
+            <sales_order_shipment_save_after>
+                <observers>
+                    <paybyfinance_salesordershipmentsaveObserver>
+                        <type>singleton</type>
+                        <class>paybyfinance/observer</class>
+                        <method>orderShipmentAfterSave</method>
+                    </paybyfinance_salesordershipmentsaveObserver>
+                </observers>
+            </sales_order_shipment_save_after>
+            <sales_order_payment_cancel>
+                <observers>
+                    <paybyfinance_salesorderCancel>
+                        <type>singleton</type>
+                        <class>paybyfinance/observer</class>
+                        <method>orderPaymentCancel</method>
+                    </paybyfinance_salesorderCancel>
+                </observers>
+            </sales_order_payment_cancel>
             <paypal_prepare_line_items>
                 <observers>
                     <hc_paypalpreparelineitemsObserver>
@@ -205,6 +223,17 @@
                 </args>
             </hc_paybyfinance>
         </routers>
+        <events>
+            <catalog_product_collection_load_after>
+                <observers>
+                    <hc_paybyfinance_product_collection_load_after>
+                        <type>singleton</type>
+                        <class>paybyfinance/observer</class>
+                        <method>collectionLoadAfter</method>
+                    </hc_paybyfinance_product_collection_load_after>
+                </observers>
+            </catalog_product_collection_load_after>
+        </events>
     </frontend>
 
     <adminhtml>

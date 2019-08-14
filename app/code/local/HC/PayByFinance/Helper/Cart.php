@@ -66,7 +66,7 @@ class HC_PayByFinance_Helper_Cart extends Mage_Core_Helper_Data
 
         $shippingAddress = Mage::getModel('checkout/cart')->getQuote()->getShippingAddress();
         if (Mage::getStoreConfig($helper::XML_PATH_INCLUDE_SHIPPING)) {
-            $additional += $shippingAddress->getShippingAmount();
+            $additional += $shippingAddress->getShippingInclTax();
         }
         $additional += $shippingAddress->getDiscountAmount();
         $additional -= $shippingAddress->getGiftCardsAmount();

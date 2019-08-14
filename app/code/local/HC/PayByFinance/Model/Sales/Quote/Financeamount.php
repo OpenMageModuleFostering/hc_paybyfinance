@@ -73,7 +73,7 @@ class HC_PayByFinance_Model_Sales_Quote_Financeamount
 
             $shippingCost = 0;
             if ($includeShipping) {
-                $shippingCost = $address->getShippingAmount();
+                $shippingCost = $address->getShippingInclTax();
             }
 
 

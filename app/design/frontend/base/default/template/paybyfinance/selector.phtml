@@ -172,7 +172,7 @@ $_secure = $this->getRequest()->isSecure();
         var value = $("pbf-input-deposit").value * 10;
         var service_id = $$('#paybyfinance input:checked[name=service]')[0].value;
         var service = pbf_selector_data.services[service_id];
-        var deposit = ((value / 100) * pbf_selector_data.amount);
+        var deposit = Math.round(((value / 100) * pbf_selector_data.amount) * 100) / 100;
         var credit = (pbf_selector_data.amount - deposit);
         var monthly = Math.floor((credit * service.multiplier) * 100) / 100; // No rounding issues, rounding always down
         if (service.type == '32') {

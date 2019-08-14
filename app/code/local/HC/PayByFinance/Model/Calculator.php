@@ -29,6 +29,7 @@
 class HC_PayByFinance_Model_Calculator extends Varien_Object
 {
     private $_service;
+    private $_allServices;
 
     /**
      * Set service by id
@@ -82,13 +83,16 @@ class HC_PayByFinance_Model_Calculator extends Varien_Object
     /**
      * Calculating monthly payments
      *
-     * @param float $amount Credit amount
+     * @param float                         $amount  Credit amount
+     * @param HC_PayByFinance_Model_Service $service Service
      *
      * @return float Monthly installment
      */
-    public function calcMonthlyPayment($amount)
+    public function calcMonthlyPayment($amount, $service = null)
     {
-        $service = $this->getService();
+        if ($service === null) {
+            $service = $this->getService();
+        }
         // No rounding issues, rounding always down.
         $monthlyPayment = floor(($amount * $service->getMultiplier()) * 100) / 100;
 
@@ -98,13 +102,16 @@ class HC_PayByFinance_Model_Calculator extends Varien_Object
     /**
      * Calculating monthly payments (Interst Free, type=32)
      *
-     * @param float $amount Credit amount
+     * @param float                         $amount  Credit amount
+     * @param HC_PayByFinance_Model_Service $service Service
      *
      * @return float Monthly installment
      */
-    public function calcMonthlyPaymentInterestFree($amount)
+    public function calcMonthlyPaymentInterestFree($amount, $service = null)
     {
-        $service = $this->getService();
+        if ($service === null) {
+            $service = $this->getService();
+        }
         $monthlyPayment = floor(($amount / $service->getTerm()) * 100) / 100;
 
         return $monthlyPayment;
@@ -124,7 +131,11 @@ class HC_PayByFinance_Model_Calculator extends Varien_Object
         $giftcard = abs($this->getGiftcard()); // Giftcard (EE) is a positive value
 
         $depositAmount = ($amount - $discount - $giftcard) * ($deposit / 100);
+        $depositAmount = round($depositAmount, 2);
         $financeAmount = $amount - $depositAmount - $discount - $giftcard;
+        // Rounding issues workaround: convert to string first.
+        // Note it would be better to use BCMath as an additional dependency.
+        $financeAmount = intval((string) ($financeAmount * 100)) / 100;
 
         if ($service->getType() == 32) {
             $monthlyPayment = $this->calcMonthlyPaymentInterestFree($financeAmount);
@@ -140,5 +151,49 @@ class HC_PayByFinance_Model_Calculator extends Varien_Object
             ->setMonthlyPayment($monthlyPayment);
 
         return $results;
+    }
+
+    /**
+     * Get cached all services collection instance
+     *
+     * @return HC_PayByFinance_Model_Mysql4_Service_Collection Services collection
+     */
+    public function getAllServices()
+    {
+        if (!$this->_allServices) {
+            $this->_allServices = Mage::getModel('paybyfinance/service')->getCollection();
+        }
+
+        return $this->_allServices;
+    }
+
+    /**
+     * Get lowest monthly installment based on product price from all available services
+     *
+     * @param float $price Product price
+     *
+     * @return float|bool Cheapest monthly installment, false if no service available
+     */
+    public function getLowestMonthlyInstallment($price)
+    {
+        $minInstallment = false;
+        foreach ($this->getAllServices() as $service) {
+            $depositAmount = ($price) * ($service->getDeposit() / 100);
+            $depositAmount = round($depositAmount, 2);
+            $financeAmount = $price - $depositAmount;
+            $financeAmount = intval((string) ($financeAmount * 100)) / 100;
+
+            if ($service->getType() == 32) {
+                $installment = $this->calcMonthlyPaymentInterestFree($financeAmount, $service);
+            } else {
+                $installment = $this->calcMonthlyPayment($financeAmount, $service);
+            }
+
+            if ($minInstallment === false || $minInstallment > $installment) {
+                $minInstallment = $installment;
+            }
+        }
+
+        return $minInstallment;
     }
 }

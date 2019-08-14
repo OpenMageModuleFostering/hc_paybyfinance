@@ -54,9 +54,11 @@ class HC_PayByFinance_Model_Sales_Order_Invoice_Financeamount
         $invoice->setFinanceAmount($amount);
         $invoice->setBaseFinanceAmount($order->getBaseFinanceAmount());
 
-        $invoice->setGrandTotal($invoice->getGrandTotal() + $invoice->getFinanceAmount());
+        $invoice->setGrandTotal(
+            $invoice->getGrandTotal() - abs($invoice->getFinanceAmount())
+        );
         $invoice->setBaseGrandTotal(
-            $invoice->getBaseGrandTotal() - $invoice->getBaseFinanceAmount()
+            $invoice->getBaseGrandTotal() - abs($invoice->getBaseFinanceAmount())
         );
 
         return $this;

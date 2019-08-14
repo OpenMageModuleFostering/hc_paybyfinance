@@ -55,7 +55,7 @@ class HC_PayByFinance_Model_Sessionobserver
             $minAmount = $service->getMinAmount();
 
             if ($includeShipping) {
-                $shippingCost = $address->getShippingAmount();
+                $shippingCost = $address->getShippingInclTax();
                 $eligibleAmount += $shippingCost;
             }
 

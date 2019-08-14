@@ -29,6 +29,44 @@
 class HC_PayByFinance_Helper_Notification extends Mage_Core_Helper_Data
 {
 
+    protected $statuses = array(
+        'PENDING' => 'An Application decision has not yet been reached.',
+        'ACCEPT' => 'The application has been accepted.',
+        'DECLINE' => 'The application has been declined.',
+        'REFER' => 'The application has been referred to the underwriting
+            department.',
+        'CONDITIONAL_ACCEPT' => 'The application has been accepted but further
+            information is needed before it can be completed.',
+        'FATAL_ERROR' => 'A fatal error has occured.',
+        'SUPPLIER_CANCELLED' => 'The supplier/retailer has cancelled the application.',
+        'HCCF_CANCELLED' => 'Hitachi Capital has cancelled the application.',
+        'CONSUMER_CANCELLED' => 'The customer has cancelled the application.',
+        'AMEND_CANCELLED' => 'This application has been cancelled since a new
+            one has been created sa an amendment of this application.',
+        'PAID' => 'The application has been paid.',
+        'COOLING_OFF' => 'The application is in a cooling off period.',
+        'ON_HOLD' => 'The application is on hold.',
+        'SEND_BACK' => 'Documents have been sent back; awaiting their return',
+    );
+
+    // These statuses will cancel the order.
+    protected $cancelStatus = array(
+        'SUPPLIER_CANCELLED',
+        'HCCF_CANCELLED',
+        'CONSUMER_CANCELLED',
+        'AMEND_CANCELLED',
+    );
+
+    /**
+     * Get notification statuses
+     *
+     * @return array Statuses
+     */
+    public function getStatuses()
+    {
+        return $this->statuses;
+    }
+
     /**
      * Process notification requests
      *
@@ -40,48 +78,54 @@ class HC_PayByFinance_Helper_Notification extends Mage_Core_Helper_Data
      */
     public function processOrder($order, $parameters)
     {
+        $helper = Mage::helper('paybyfinance');
         $orderStatus = $order->getStatus();
         $orderState = $order->getState();
+        $applicationNo = $parameters['applicationNumber'];
+        $status = strtoupper($parameters['status']);
 
-        switch ($parameters['status']) {
-            case 'S':
-                $message = 'Status: Awaiting dispatch of goods. authorisationcode: '
-                    . $parameters['authorisationcode'];
-                $orderStatus = Mage_Sales_Model_Order::STATE_PROCESSING;
-                $order->setTotalPaid(
-                    $order->getTotalPaid() + abs($order->getFinanceAmount())
-                );
-                $order->setBaseTotalPaid(
-                    $order->getBaseTotalPaid() + abs($order->getFinanceAmount())
-                );
+        if (!array_key_exists($status, $this->statuses)) {
+            $message = 'Status Unknown: "' . $parameters['status'].'"';
+        } else {
+            $message = $this->statuses[$status];
+        }
+
+        if (in_array($status, $this->cancelStatus)) {
+            $orderState = $orderStatus = Mage_Sales_Model_Order::STATE_CANCELED;
+        }
+
+        switch ($status) {
+            case 'ACCEPT':
+            case 'CONDITIONAL_ACCEPT':
+                if (array_key_exists('goodsDispatched', $parameters)
+                    && $parameters['goodsDispatched'] == 'N'
+                ) {
+                    $message .= ' Awaiting dispatch of goods. authorisationNumber: '
+                        . $parameters['authorisationNumber'];
+                    $orderState = $orderStatus = Mage_Sales_Model_Order::STATE_PROCESSING;
+                    $order->setTotalPaid(
+                        $order->getTotalPaid() + abs($order->getFinanceAmount())
+                    );
+                    $order->setBaseTotalPaid(
+                        $order->getBaseTotalPaid() + abs($order->getFinanceAmount())
+                    );
+                } else {
+                    $orderStatus = Mage::getStoreConfig($helper::XML_PATH_STATUS_ACCEPTED);
+                }
                 break;
-            case 'A':
-                $message = 'Status: Accepted';
+            case 'DECLINE':
+                $orderStatus = Mage::getStoreConfig($helper::XML_PATH_STATUS_DECLINED);
                 break;
-            case 'R':
-                $message = 'Status: Referred for manual underwriting';
+            case 'REFER':
+                $orderStatus = Mage::getStoreConfig($helper::XML_PATH_STATUS_REFERRED);
                 break;
-            case 'D':
-                $message = 'Status: Declined';
-                break;
-            case 'G':
-                $message = 'Status: Goods dispatched';
-                break;
-            case 'C':
-                $message = 'Status: Cancelled';
-                $orderState = $orderStatus = Mage_Sales_Model_Order::STATE_CANCELED;
-                break;
-            case 'F':
-                $message = 'Status: Fraud';
-                $orderState = $orderStatus = Mage_Sales_Model_Order::STATE_CANCELED;
-                break;
-            default:
-                $message = 'Status: Unknown: ' . $parameters['status'];
+            case 'FATAL_ERROR':
+                $orderStatus = Mage::getStoreConfig($helper::XML_PATH_STATUS_ERROR);
                 break;
         }
 
         $message = "<strong>Hitachi Capital Pay By Finance"
-            . "</strong> notification received: " . $message;
+            . "</strong> notification received: " . $status . ': ' . $message;
         $order->setFinanceStatus($status)
             ->setFinanceApplicationNo($applicationNo)
             ->setState($orderState, $orderStatus)

@@ -190,10 +190,21 @@ $setup->addAttribute(
         'comparable'  => true,
         'visible_on_front' => false,
         'visible_in_advanced_search' => false,
-        'used_in_product_listing' => false,
+        'used_in_product_listing' => 1,
         'used_for_sort_by' => false,
         'unique'      => false,
         'apply_to'    => '',
+    )
+);
+
+$entityTypeId = $setup->getEntityTypeId('catalog_product');
+
+$idAttribute = $setup->getAttribute($entityTypeId, 'paybyfinance_enable', 'attribute_id');
+$setup->updateAttribute(
+    $entityTypeId,
+    $idAttribute,
+    array(
+        'used_in_product_listing' => 1
     )
 );
 

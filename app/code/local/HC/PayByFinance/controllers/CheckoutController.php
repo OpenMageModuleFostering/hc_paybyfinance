@@ -55,7 +55,7 @@ class HC_PayByFinance_CheckoutController extends Mage_Core_Controller_Front_Acti
         $includeShipping = Mage::getStoreConfig($helper::XML_PATH_INCLUDE_SHIPPING);
         $shippingCost = 0;
         if ($includeShipping) {
-            $shippingCost = $order->getShippingAmount();
+            $shippingCost = $order->getShippingInclTax();
         }
         $mode = Mage::getStoreConfig($helper::XML_PATH_CONNECTION_MODE);
 
@@ -74,17 +74,18 @@ class HC_PayByFinance_CheckoutController extends Mage_Core_Controller_Front_Acti
         $productCount = 0;
         $additionalItems = 0;
         foreach ($eligibleProducts as $key => $product) {
+            $productName = $helper->sanitizeProductName($product->getName());
             $productsInForm['gc' . $productCount] = $product->getSku();
             $productsInForm['pc' . $productCount] = $product->getSku();
-            $productsInForm['gd' . $productCount] = $product->getName();
+            $productsInForm['gd' . $productCount] = $productName;
             $productsInForm['q' . $productCount] = intval($product->getQtyOrdered());
             $productsInForm['gp' . $productCount] =
                 floor($product->getPriceInclTax() * 10000) / 10000;
             $productCount++;
         }
 
-        if ($includeShipping && $order->getShippingAmount() > 0) {
-            $shippingCost = $order->getShippingAmount();
+        if ($includeShipping && $order->getShippingInclTax() > 0) {
+            $shippingCost = $order->getShippingInclTax();
             $additionalItems++;
             $productsInForm['gc' . ($productCount) ] = 'sc';
             $productsInForm['pc' . ($productCount)] = 'sc';

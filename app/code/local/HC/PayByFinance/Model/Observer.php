@@ -67,7 +67,7 @@ class HC_PayByFinance_Model_Observer
             $helper::XML_PATH_INCLUDE_SHIPPING
         );
         if ($includeShipping) {
-            $shippingCost = $address->getShippingAmount();
+            $shippingCost = $order->getShippingInclTax();
             $eligibleAmount += $shippingCost;
         }
 
@@ -98,7 +98,7 @@ class HC_PayByFinance_Model_Observer
      *
      * @return void
      */
-    public function salesQuoteItemSetPaybyfinanceENable($observer)
+    public function salesQuoteItemSetPaybyfinanceEnable($observer)
     {
         $quoteItem = $observer->getQuoteItem();
         $product = $observer->getProduct();
@@ -128,6 +128,71 @@ class HC_PayByFinance_Model_Observer
         $order->setStatus('pending');
         $order->setFromQuote(false);
         $order->save();
+    }
+
+    /**
+     * Sending inbound notification as documented in Section 3 of the specs.
+     *
+     * @param Varien_Event_Observer $observer Observer object
+     *
+     * @return void
+     */
+    public function orderShipmentAfterSave(Varien_Event_Observer $observer)
+    {
+        $order = $observer->getEvent()->getShipment()->getOrder();
+        $applicationNo = $order->getFinanceApplicationNo();
+        if (empty($applicationNo)) {
+            return;
+        } else {
+            $this->inboundNotification($order, 'G');
+        }
+    }
+
+    /**
+     * Send inbound notification when order is cancelled. Section 3 of the specs.
+     *
+     * @param Varien_Event_Observer $observer Observer object
+     *
+     * @return void
+     */
+    public function orderPaymentCancel(Varien_Event_Observer $observer)
+    {
+        $order = $observer->getPayment()->getOrder();
+        $applicationNo = $order->getFinanceApplicationNo();
+        if (empty($applicationNo)) {
+            return;
+        } else {
+            $this->inboundNotification($order, 'C');
+        }
+    }
+
+    /**
+     * Inbound notification to be used from the above functions
+     *
+     * @param Mage_Sales_Model_Order $order  Order
+     * @param string                 $status 'G' or 'C'
+     *
+     * @return void
+     */
+    protected function inboundNotification($order, $status)
+    {
+        $applicationNo = $order->getFinanceApplicationNo();
+        $helper = Mage::helper('paybyfinance');
+        $data = array(
+            'status' => $status,
+            'applicationNo' => $order->getFinanceApplicationNo(),
+        );
+        $post = Mage::getModel('paybyfinance/post');
+        $post->setPostAdapter(Mage::getStoreConfig($helper::XML_PATH_CONNECTION_MODE));
+
+        $post->setNotificationData($data);
+        $response = $post->post();
+        $helper->log(
+            'Inbound notification for order: ' . $order->getId() . "\n"
+            . $helper->arrayDump($post->getPostAdapter()->getPostData()) . "\n"
+            . 'Response: ' . $response,
+            'post'
+        );
     }
 
     /**
@@ -213,6 +278,36 @@ class HC_PayByFinance_Model_Observer
             );
         }
         return $this;
+    }
+
+    /**
+     * Calculate lowest finance instalment based on product price and available
+     * services.
+     *
+     * @param Varien_Event_Observer $observer Observer
+     *
+     * @return void
+     */
+    public function collectionLoadAfter(Varien_Event_Observer $observer)
+    {
+        $helper = Mage::helper('paybyfinance');
+        $calculator = Mage::getModel('paybyfinance/calculator');
+
+        Varien_Profiler::start('hc_paybyfinance_collection_load_after');
+        $collection = $observer->getCollection();
+        $count = 0;
+        foreach ($collection as $product) {
+            // Exit the loop at 30 to avoid long page load times on large collections.
+            if ($count++ > 30) {
+                break;
+            }
+            if ($helper->isProductEligible($product)) {
+                $product->setData('has_finance', true);
+                $minInstallment = $calculator->getLowestMonthlyInstallment($product->getPrice());
+                $product->setData('finance_from_price', $minInstallment);
+            }
+        }
+        Varien_Profiler::stop('hc_paybyfinance_collection_load_after');
     }
 
 }

@@ -59,8 +59,8 @@ class HC_PayByFinance_Model_Sales_Quote_Totalcost
     public function fetch(Mage_Sales_Model_Quote_Address $address)
     {
         $session = Mage::getSingleton('paybyfinance/session');
-        $amount = $address->getQuote()->getSubtotal()
-            + $address->getShippingAmount()
+        $amount = $address->getSubtotalInclTax()
+            + $address->getShippingInclTax()
             + $address->getDiscountAmount()
             - $address->getGiftCardsAmount();
         if ($session->getData('enabled') && $address->getAddressType() == 'shipping') {
