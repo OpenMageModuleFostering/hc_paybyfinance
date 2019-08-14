@@ -150,4 +150,20 @@
             </reference>
         </reference>
     </adminhtml_sales_order_creditmemo_view>
+
+    <!-- Adding order view address house_flat, house_number, house_name -->
+    <adminhtml_sales_order_view>
+        <reference name="left">
+            <reference name="sales_order_tabs">
+                <reference name="order_tab_info">
+                    <reference name="order_info">
+                        <action method="setTemplate" ifconfig="hc_paybyfinance/general/address_checked">
+                            <template>paybyfinance/enhaceaddress/orderview/address/info.phtml</template>
+                        </action>
+                    </reference>
+                </reference>
+            </reference>
+        </reference>
+
+    </adminhtml_sales_order_view>
 </layout>

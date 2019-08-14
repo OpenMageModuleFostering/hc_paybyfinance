@@ -134,7 +134,7 @@ class HC_PayByFinance_Model_Post extends Mage_Core_Model_Abstract
                 'paybyfinance/notification',
                 array('_secure' => true, 'store' => $this->getStoreId())
             ),
-            'address_checked' => $addressChecked == "1" ? 'Y' : 'N',
+            'addChecked' => $addressChecked == "1" ? 'Y' : 'N',
             'wizard' => $wizard == "1" ? 'new' : 'old',
         );
         $data = array_merge($data, $fields);
@@ -152,7 +152,6 @@ class HC_PayByFinance_Model_Post extends Mage_Core_Model_Abstract
     public function setNotificationData($data)
     {
         $helper = Mage::helper('paybyfinance');
-        $adapter = $this->_adapter;
 
         $fields = array(
             'id' => trim(

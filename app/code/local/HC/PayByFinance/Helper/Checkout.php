@@ -46,6 +46,9 @@ class HC_PayByFinance_Helper_Checkout extends Mage_Core_Helper_Data
         switch ($parameters['decision']) {
             case 'ACCEPTED':
                 $status = Mage::getStoreConfig($helper::XML_PATH_STATUS_ACCEPTED);
+                if ($order->getStatus() == 'processing') {
+                    $status = 'processing'; // HC-261 Race condition on previously REFERRED orders
+                }
                 $redirectUrl = 'paybyfinance/status/accepted';
                 break;
             case 'DECLINED':
@@ -70,12 +73,12 @@ class HC_PayByFinance_Helper_Checkout extends Mage_Core_Helper_Data
 
         $message = $this->getParamText('id', 'id', $parameters);
         $message .= $this->getParamText('id2', 'id2', $parameters);
-        $message .= "\nFinance: " . $parameters['decision'];
-        $message .= "\nApplication: " . isset($parameters['applicationNo'])?$parameters['applicationNo']:"N/A";
-        $message .= "\nAuthorization: " . isset($parameters['authorisationcode'])?$parameters['authorisationcode']:"N/A";
-        $message .= "\nSURL: " . isset($parameters['sourceurl'])?$parameters['sourceurl']:"N/A";
-        $message .= $this->getParamText('Errreason', 'Reason', $parameters);
-        $message .= $this->getParamText('Errtext', 'Message', $parameters);
+        $message .= $this->getParamText('decision', 'decision', $parameters);
+        $message .= $this->getParamText('applicationNo', 'applicationNo', $parameters);
+        $message .= $this->getParamText('authorisationcode', 'authorisationcode', $parameters);
+        $message .= $this->getParamText('sourceurl', 'sourceurl', $parameters);
+        $message .= $this->getParamText('Errreason', 'Errreason', $parameters);
+        $message .= $this->getParamText('Errtext', 'Errtext', $parameters);
 
         $state = Mage_Sales_Model_Order::STATE_PROCESSING;
         $financeStatus = $order->getFinanceStatus();
@@ -83,32 +86,41 @@ class HC_PayByFinance_Helper_Checkout extends Mage_Core_Helper_Data
             $financeStatus = 'ACCEPTED';
         }
 
-        if ($parameters['decision'] == 'ACCEPTED') {
-            $order->sendNewOrderEmail();
-            $helper->log(
-                'New order email has been sent for order: ' . $order->getIncrementId(),
-                'post'
-            );
-        }
+        //Proceed with emails and saving order changes only in case the status change is allowed
+        if (Mage::helper('paybyfinance/checkout')->setOrderStateSafe($order, $state, $status)) {
 
-        if ($parameters['decision'] != $financeStatus // Don't change status if not modified.
-            && !$order->getPaybyfinanceEnable() // Don't change status on second return.
-        ) {
-            $order->setState($state, $status);
-            $order->setFinanceStatus($parameters['decision']);
-            if ($parameters['decision'] != 'ACCEPTED') {
-                $orderHelper = Mage::helper('paybyfinance/order');
-                $orderHelper->sendFailedEmail($order, $parameters['decision']);
+            if ($parameters['decision'] == 'ACCEPTED') {
+                $order->sendNewOrderEmail();
                 $helper->log(
-                    'Failed order email has been sent for order: ' . $order->getIncrementId() . "\n"
-                    . 'Finance status: ' . $parameters['decision'],
+                    'New order email has been sent for order: ' . $order->getIncrementId(),
                     'post'
                 );
             }
+
+            if ($parameters['decision'] != $financeStatus // Don't change status if not modified.
+                && !$order->getPaybyfinanceEnable() // Don't change status on second return.
+            ) {
+                $order->setFinanceStatus($parameters['decision']);
+                if ($parameters['decision'] != 'ACCEPTED') {
+                    $orderHelper = Mage::helper('paybyfinance/order');
+                    $orderHelper->sendFailedEmail($order, $parameters['decision']);
+                    $helper->log(
+                        'Failed order email has been sent for order: ' . $order->getIncrementId() . "\n"
+                        . 'Finance status: ' . $parameters['decision'],
+                        'post'
+                    );
+                }
+            }
+            $order->addStatusHistoryComment(nl2br(trim($message), false));
+            $order->setPaybyfinanceEnable(true);
+
+            $order->save();
+        } else {
+            $order->addStatusHistoryComment(nl2br(trim($message), false));
+
+            $order->save();
         }
-        $order->addStatusHistoryComment(nl2br(trim($message), false));
-        $order->setPaybyfinanceEnable(true);
-        $order->save();
+
 
         return $redirectUrl;
     }
@@ -145,21 +157,51 @@ class HC_PayByFinance_Helper_Checkout extends Mage_Core_Helper_Data
     {
         $helper = Mage::helper('paybyfinance');
         $status = Mage::getStoreConfig($helper::XML_PATH_STATUS_ABANDONED);
-        $message = 'id: ' . $parameters['id'];
-        $message .= ' id2: ' . $parameters['id2'];
-        $message .= "\n" . $parameters['decision'];
-        $message .= "\nApplication: " .
-            isset($parameters['applicationNo'])?$parameters['applicationNo']:"N/A";
-        $message .= "\nAuthorization: " .
-            isset($parameters['authorisationcode'])?$parameters['authorisationcode']:"N/A";
-        $message .= "\nSURL: " . isset($parameters['sourceurl'])?$parameters['sourceurl']:"N/A";
-        $message .= "\nReason: " . $parameters['Errreason'];
-        $message .= "\nMessage: " . $parameters['Errtext'];
+        $message = $this->getParamText('id', 'id', $parameters);
+        $message .= $this->getParamText('id2', 'id2', $parameters);
+        $message .= $this->getParamText('decision', 'decision', $parameters);
+        $message .= $this->getParamText('applicationNo', 'applicationNo', $parameters);
+        $message .= $this->getParamText('authorisationcode', 'authorisationcode', $parameters);
+        $message .= $this->getParamText('sourceurl', 'sourceurl', $parameters);
+        $message .= $this->getParamText('Errreason', 'Errreason', $parameters);
+        $message .= $this->getParamText('Errtext', 'Errtext', $parameters);
 
         $state = Mage_Sales_Model_Order::STATE_PROCESSING;
-        $order->setState($state, $status);
         $order->addStatusToHistory($status, nl2br(trim($message)), false);
-        $order->save();
+        //Save order changes only in case the status change is allowed
+        if (Mage::helper('paybyfinance/checkout')->setOrderStateSafe($order, $state, $status)) {
+            $order->save();
+        }
+    }
+
+    /**
+     * Sets order state and status and checks all security restrictions before it.
+     * Does not save order.
+     *
+     * @param Mage_Sales_Model_Order $order  order
+     * @param string                 $state  state
+     * @param string                 $status status
+     *
+     * @return bool
+     */
+    public function setOrderStateSafe($order, $state, $status)
+    {
+        $helper = Mage::helper('paybyfinance');
+
+        if ($order->getStatus() == HC_PayByFinance_Helper_Data::STATUS_ADDRESS_INCONSISTENT) {
+            $helper->log(
+                'Something tried to change order status to ' . $status
+                . ' while order is in address inconsistent status. Change rejected.',
+                'post'
+            );
+            return false;
+        }
+
+        if ($order->getState() != $state || $order->getStatus() != $status) {
+            $order->setState($state, $status);
+        }
+
+        return true;
     }
 
 }

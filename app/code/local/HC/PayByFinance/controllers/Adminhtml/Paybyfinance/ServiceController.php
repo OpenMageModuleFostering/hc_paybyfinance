@@ -142,7 +142,6 @@ class HC_PayByFinance_Adminhtml_Paybyfinance_ServiceController
                     ->setType($postData['type'])
                     ->setApr($postData['apr'])
                     ->setTerm($postData['term'])
-                    ->setDeferTerm($postData['defer_term'])
                     ->setOptionTerm($postData['option_term'])
                     ->setDeposit($postData['deposit'])
                     ->setFee($postData['fee'])
@@ -151,8 +150,13 @@ class HC_PayByFinance_Adminhtml_Paybyfinance_ServiceController
                     ->setRpm($postData['rpm'])
                     ->setStoreId($storeId);
 
+                if (isset($postData['defer_term'])) {
+                    $serviceModel->setDeferTerm($postData['defer_term']);
+                } else {
+                    $serviceModel->setDeferTerm(0); //clear the value
+                }
 
-                if ($postData['max_amount'] === '') {
+                if (!isset($postData['max_amount']) || $postData['max_amount'] === '') {
                     $serviceModel->setMaxAmount(null); //clear the value
                 } else {
                     $serviceModel->setMaxAmount($postData['max_amount']);

@@ -66,6 +66,17 @@ class HC_PayByFinance_NotificationController extends Mage_Core_Controller_Front_
 
         $notificationHelper = Mage::helper('paybyfinance/notification');
         try {
+            if (isset($parameters['postcode'])) {
+                $this->checkPostCodesSame($parameters, $order);
+            }
+        } catch (Exception $e) {
+            $helper->log(
+                $e->getMessage(),
+                'notification'
+            );
+        }
+
+        try {
             $result = $notificationHelper->processOrder($order, $parameters);
         } catch (Exception $e) {
             $helper->log(
@@ -103,4 +114,68 @@ class HC_PayByFinance_NotificationController extends Mage_Core_Controller_Front_
             die();
         }
     }
+
+    /**
+     * Checks if postcode sent within notification parameters is same as billing order postcode
+     *
+     * @param array                  $parameters array of parameters sent from HCM
+     * @param Mage_Sales_Model_Order $order      order
+     *
+     * @return void
+     *
+     * @throws Exception
+     */
+    private function checkPostCodesSame($parameters, $order)
+    {
+        if (isset($parameters['postcode']) && $order) {
+            $notificationPostCode = self::normalizeZIP($parameters['postcode']);
+            $orderBillingPostCode = self::normalizeZIP($order->getBillingAddress()->getPostcode());
+            $orderShippingPostCode = self::normalizeZIP(
+                $order->getShippingAddress()->getPostcode()
+            );
+
+            if ($notificationPostCode == $orderBillingPostCode
+                && $notificationPostCode == $orderShippingPostCode
+            ) {
+                return;
+            }
+        }
+
+        $applicationNo = '';
+        if (isset($parameters['applicationNumber'])) {
+            $applicationNo = $parameters['applicationNumber'];
+        }
+
+        $order->setFinanceStatus(HC_PayByFinance_Helper_Data::FINANCE_STATUS_FRAUD);
+        $order->setFinanceApplicationNo($applicationNo);
+        $order->addStatusHistoryComment(
+            'Billing postcode is not the same as postcode received from HCM Notification!', false
+        );
+
+        Mage::helper('paybyfinance/checkout')->setOrderStateSafe(
+            $order, Mage_Sales_Model_Order::STATE_PROCESSING,
+            HC_PayByFinance_Helper_Data::STATUS_ADDRESS_INCONSISTENT
+        );
+
+        $order->save();
+
+
+        throw new Exception(
+            'Billing postcode is not the same as postcode received from HCM Notification!'
+        );
+    }
+
+    /**
+     * Removes all whitechars and makes zip uppercase
+     *
+     * @param string $postcode postCode
+     *
+     * @return String
+     */
+    private static function normalizeZIP($postcode)
+    {
+        return strtoupper(preg_replace('/\s+/', '', $postcode));
+    }
+
+
 }

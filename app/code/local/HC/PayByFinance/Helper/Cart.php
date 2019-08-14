@@ -29,6 +29,8 @@
 class HC_PayByFinance_Helper_Cart extends Mage_Core_Helper_Data
 {
 
+    protected $_eligibleProducts;
+
     /**
      * getEligibleProducts
      *
@@ -38,6 +40,9 @@ class HC_PayByFinance_Helper_Cart extends Mage_Core_Helper_Data
      */
     public function getEligibleProducts($items = null)
     {
+        if (isset($this->_eligibleProducts)) {
+            return $this->_eligibleProducts;
+        }
         if ($items === null) {
             $cart = Mage::getModel('checkout/cart')->getQuote();
             $items = $cart->getAllItems();
@@ -50,6 +55,7 @@ class HC_PayByFinance_Helper_Cart extends Mage_Core_Helper_Data
                 $eligible[] = $item;
             }
         }
+        $this->_eligibleProducts = $eligible;
 
         return $eligible;
     }
@@ -87,6 +93,32 @@ class HC_PayByFinance_Helper_Cart extends Mage_Core_Helper_Data
         $items = $this->getEligibleProducts($items);
         foreach ($items as $item) {
             $amount += $item->getRowTotalInclTax();
+        }
+        return $amount;
+    }
+
+    /**
+     * getEligibleAmount for redirect POST. This was needed because of rounding conflict HC-469
+     *
+     * @param Collection $items Product collection or null
+     *
+     * @return float Sum of price * qty of eligible products.
+     */
+    public function getEligibleAmountForRedirect($items = null)
+    {
+        $amount = 0;
+        $items = $this->getEligibleProducts($items);
+        foreach ($items as $item) {
+            if ($item->getQty() != 0) {
+                $qty = $item->getQty();
+            } else {
+                $qty = $item->getQtyOrdered();
+            }
+            // Line subtotal is always rounded down for Hitachi POST
+            $price = $qty * $item->getPriceInclTax();
+            // PHP Float issues workaround: convert to string first.
+            // Note it would be better to use BCMath as an additional dependency.
+            $amount += intval((string) ($price * 100)) / 100;
         }
         return $amount;
     }

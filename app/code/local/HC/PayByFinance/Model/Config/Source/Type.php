@@ -89,4 +89,16 @@ class HC_PayByFinance_Model_Config_Source_Type
         || ($serviceType == self::TYPE35);
     }
 
+    /**
+     *  Is provided service type interest free one?
+     *
+     * @param int $serviceType ServiceType
+     *
+     * @return bool
+     */
+    public static function isInterestFreeType($serviceType)
+    {
+        return ($serviceType == self::TYPE32) || ($serviceType == self::TYPE34);
+    }
+
 }

@@ -137,7 +137,7 @@ class HC_PayByFinance_Model_Calculator extends Varien_Object
         // Note it would be better to use BCMath as an additional dependency.
         $financeAmount = intval((string) ($financeAmount * 100)) / 100;
 
-        if ($service->getType() == 32) {
+        if (HC_PayByFinance_Model_Config_Source_Type::isInterestFreeType($service->getType())) {
             $monthlyPayment = $this->calcMonthlyPaymentInterestFree($financeAmount);
         } else {
             $monthlyPayment = $this->calcMonthlyPayment($financeAmount);
@@ -191,7 +191,7 @@ class HC_PayByFinance_Model_Calculator extends Varien_Object
                 continue;
             }
 
-            if ($service->getType() == 32) {
+            if (HC_PayByFinance_Model_Config_Source_Type::isInterestFreeType($service->getType())) {
                 $installment = $this->calcMonthlyPaymentInterestFree($financeAmount, $service);
             } else {
                 $installment = $this->calcMonthlyPayment($financeAmount, $service);

@@ -81,6 +81,16 @@ abstract class HC_PayByFinance_Model_Post_Abstract extends Mage_Core_Model_Abstr
         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
         curl_setopt($ch, CURLOPT_SSL_CIPHER_LIST, implode(':', $this->_ciphers));
         $response = curl_exec($ch);
+
+        if ($response === false) {
+            $helper = Mage::helper('paybyfinance');
+            $helper->log(
+                "Curl error: " . curl_error($ch) . " when sending data: "
+                . $helper->arrayDump($this->_pbfInformation),
+                'post'
+            );
+        }
+
         curl_close($ch);
 
         if ($response !== false) {
@@ -98,7 +108,7 @@ abstract class HC_PayByFinance_Model_Post_Abstract extends Mage_Core_Model_Abstr
     public function getRedirectForm()
     {
         $block = Mage::app()->getLayout()->createBlock('paybyfinance/checkout_redirect')
-            ->setPostContent($this->_pbfInformation)
+            ->setPostContent($this->getPostData())
             ->setPostUrl($this->getPostUrl())
             ->setMode($this->getMode())
             ->setTemplate('paybyfinance/form.phtml');

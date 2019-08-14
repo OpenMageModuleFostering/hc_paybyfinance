@@ -67,6 +67,7 @@ class HC_PayByFinance_Helper_Notification extends Mage_Core_Helper_Data
         return $this->statuses;
     }
 
+    // @codingStandardsIgnoreStart
     /**
      * Process notification requests
      *
@@ -134,12 +135,33 @@ class HC_PayByFinance_Helper_Notification extends Mage_Core_Helper_Data
 
         list($orderState, $orderStatus) = $this->getOrderStateAndStatus($parameters);
 
+        //Check addresses if they are same, otherwise set address exceptional status of order.
+        if ($this->addressBillingShippingDiffers($order)) {
+            $order->setFinanceStatus($status);
+            $order->setFinanceApplicationNo($applicationNo);
+            $order->addStatusHistoryComment($message .
+                'Shipping and Billing addresses are not the same!', false
+            );
+            $order->save();
+            //Save order changes only in case the status change is allowed
+            if (Mage::helper('paybyfinance/checkout')->setOrderStateSafe(
+                $order, Mage_Sales_Model_Order::STATE_PROCESSING,
+                HC_PayByFinance_Helper_Data::STATUS_ADDRESS_INCONSISTENT
+            )
+            ) {
+                return $order->save();
+            }
+
+            return $order;
+        }
+
         $this->financeStatusChange($status, $order, $orderStatus, $orderState);
         $order
             ->setFinanceApplicationNo($applicationNo)
             ->addStatusHistoryComment($message, false);
         return $order->save();
     }
+    // @codingStandardsIgnoreEnd
 
     /**
      * Add totals to the order
@@ -198,17 +220,22 @@ class HC_PayByFinance_Helper_Notification extends Mage_Core_Helper_Data
         }
 
         if ($status == 'ACCEPT' && !in_array($order->getStatus(), $disallowChange)) {
-            $order->setState($orderState, $orderStatus);
+            Mage::helper('paybyfinance/checkout')->setOrderStateSafe(
+                $order, $orderState, $orderStatus
+            );
         }
+
         if ($origStatus != $status) {
             $order->setFinanceStatus($status);
-            $order->setState($orderState, $orderStatus);
-            return true;
+            return Mage::helper('paybyfinance/checkout')->setOrderStateSafe(
+                $order, $orderState, $orderStatus
+            );
         }
 
         return false;
     }
 
+    // @codingStandardsIgnoreStart
     /**
      * Calculate order state and status based on notification parameters
      *
@@ -255,6 +282,9 @@ class HC_PayByFinance_Helper_Notification extends Mage_Core_Helper_Data
             case 'FATAL_ERROR':
                 $orderStatus = Mage::getStoreConfig($helper::XML_PATH_STATUS_ERROR);
                 break;
+            case 'PAID':
+                // Do not throw exception, so it will show up as an order comment.
+                break;
             default:
                 $message = "Unknown status value:>" . $status . "<";
                 Mage::helper('paybyfinance')->log($message, 'notification');
@@ -262,5 +292,21 @@ class HC_PayByFinance_Helper_Notification extends Mage_Core_Helper_Data
         }
 
         return array($orderState, $orderStatus);
+    }
+    // @codingStandardsIgnoreEnd
+
+
+    /**
+     * Checks if billing and shipping addresses are same
+     *
+     * @param Mage_Sales_Model_Order $order order
+     *
+     * @return bool if differs any field in addresses arrays
+     */
+    private function addressBillingShippingDiffers($order)
+    {
+        return Mage::helper('paybyfinance')->addressessDiffers(
+            $order->getBillingAddress(), $order->getShippingAddress()
+        );
     }
 }

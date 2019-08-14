@@ -131,6 +131,7 @@ class HC_PayByFinance_Block_Adminhtml_Paybyfinance_Service_Edit_Tab_Form
                 'label'     => $helper->__('Maximum Loan Amount'),
                 'required'  => false,
                 'name'      => 'max_amount',
+                'after_element_html' => '<p class="nm"><small>Leave blank to no limit</small></p>'
             )
         );
 
@@ -161,9 +162,7 @@ class HC_PayByFinance_Block_Adminhtml_Paybyfinance_Service_Edit_Tab_Form
                     ->getStoreValuesForForm(false, true),
             )
         );
-
-
-
+        
         if (Mage::getSingleton('adminhtml/session')->getServiceData()) {
             $form->setValues(
                 Mage::getSingleton('adminhtml/session')->getServiceData()
@@ -184,8 +183,8 @@ class HC_PayByFinance_Block_Adminhtml_Paybyfinance_Service_Edit_Tab_Form
                 ->addFieldDependence(
                     'defer_term', 'type',
                     array((string) HC_PayByFinance_Model_Config_Source_Type::TYPE25,
-                        (string) HC_PayByFinance_Model_Config_Source_Type::TYPE34,
-                        (string) HC_PayByFinance_Model_Config_Source_Type::TYPE35)
+                          (string) HC_PayByFinance_Model_Config_Source_Type::TYPE34,
+                          (string) HC_PayByFinance_Model_Config_Source_Type::TYPE35)
                 )
         );
 

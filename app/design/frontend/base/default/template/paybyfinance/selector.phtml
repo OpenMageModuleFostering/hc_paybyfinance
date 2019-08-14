@@ -29,16 +29,16 @@ $_secure = $this->getRequest()->isSecure();
 
     <h3>Would you like to pay by Finance?</h3>
     <?php if (!$_product): ?>
-        <input id="paybyfinance-no" type="radio" name="pbf-checkbox" value="" onclick="$('paybyfinance-container').hide(); $('pbf-cart-btn').show(); pbf_redraw();" checked>
+        <input id="paybyfinance-no" type="radio" name="pbf-checkbox" autocomplete="off" value="" onclick="$('paybyfinance-container').hide(); $('pbf-cart-btn').show(); pbf_redraw();" checked>
         <label for="paybyfinance-no">No</label><br>
-        <input id="paybyfinance-yes" type="radio" name="pbf-checkbox" value="paybyfinance" onclick="$('paybyfinance-container').show(); $('pbf-cart-btn').show(); pbf_redraw();">
+        <input id="paybyfinance-yes" type="radio" name="pbf-checkbox" autocomplete="off" value="paybyfinance" onclick="$('paybyfinance-container').show(); $('pbf-cart-btn').show(); pbf_redraw();">
         <label for="paybyfinance-yes">Yes</label><br>
     <?php endif; ?>
     <div id="paybyfinance-container" <?php if (!$_product) echo 'style="display: none;"'; ?>>
         <p>Finance Calculation for your <span class="calculated" id="pbf-ordervalue">-</span> order</p>
         <p>I would like to pay a deposit of <span class="calculated" id="pbf-deposit">-</span></p>
 
-        <input id="pbf-input-deposit" name="pbf-input-deposit" class="pbf-input-hidden" type="range" min="0" max="6" value ="1"/>
+        <input id="pbf-input-deposit" name="pbf-input-deposit" class="pbf-input-hidden" type="range" min="0" max="6" autocomplete="off" value ="1"/>
 
         <?php if (!$this->getIsFixedDepositOnly()): ?>
             <div id="pbf-deposit-slider" class="healthy-slider clearfix"> <div class="slider-marker"></div> <div class="slider-pointer"></div> </div>
@@ -79,7 +79,7 @@ $_secure = $this->getRequest()->isSecure();
                         <?php echo $_service->getName(); ?> (<?php echo $_service->getApr() ?>% APR Representative for <strong><?php echo $_service->getTerm(); ?> months</strong>)
                     </td>
                     <td>
-                        <input type="radio" name="service" onclick="javascript:pbf_selector_recalculate();" value="<?php echo $_service->getId(); ?>" <?php echo $checked?'':'checked'; ?> />
+                        <input type="radio" name="service" onclick="javascript:pbf_selector_recalculate();" autocomplete="off" value="<?php echo $_service->getId(); ?>" <?php echo $checked?'':'checked'; ?> />
                     </td>
                 </tr>
                 <?php $checked = true; ?>
@@ -135,9 +135,9 @@ $_secure = $this->getRequest()->isSecure();
         <div class="pbf-footnote">
             <p>Total Amount Payable Includes Deposit Amount.</p>
             <p>The figures shown are an illustration based on the cost of goods. Final details including shipping and discounts where applicable will be displayed on the checkout page.</p>
-            <p>Credit is provided by Hitachi Capital Consumer Finance, a division of Hitachi Capital (UK) PLC authorised and regulated by the Financial Conduct Authority.</p>
+            <p>Credit is provided by Hitachi Personal Finance, a division of Hitachi Capital (UK) PLC authorised and regulated by the Financial Conduct Authority.</p>
             <p><?php echo $this->getRetailerName(); ?> <?php echo $this->getTradingName(); ?> acts as a credit broker and is authorised and regulated by the Financial Conduct Authority.</p>
-            <p><strong>IMPORTANT:</strong> Hitachi Capital rounds down the monthly payments, which may result in your total amount payable being less than the total cash price.</p>
+            <div id="pbf-footnote-important"><p><strong>IMPORTANT:</strong> Hitachi Personal Finance rounds down the monthly payments, which may result in your total amount payable being less than the total cash price.</p></div>
         </div>
     </div>
     <?php if ($_product): ?>
@@ -181,8 +181,8 @@ $_secure = $this->getRequest()->isSecure();
         var service = pbf_selector_data.services[service_id];
         var deposit = Math.round(((value / 100) * pbf_selector_data.amount) * 100) / 100;
         var credit = (pbf_selector_data.amount - deposit);
-        var monthly = Math.floor((credit * service.multiplier) * 100) / 100; // No rounding issues, rounding always down
-        if (service.type == '32') {
+        var monthly = Math.ceil((credit * service.multiplier) * 100) / 100; // rounding always up for interest bearing services. Same as  \HC_PayByFinance_Model_Calculator::calcMonthlyPayment
+        if (service.type == '32' || service.type == '34') {
             monthly = Math.floor((credit / service.term) * 100) / 100;
         }
         var payable = (monthly * service.term + deposit);
@@ -273,6 +273,24 @@ $_secure = $this->getRequest()->isSecure();
         pbf_selector_recalculate();
     }
 
+    function pbf_check_hide_note(value) {
+        if (typeof(pbf_selector_user) == "undefined") {
+            return;
+        }
+
+        if (pbf_selector_data.services.length == 0) {
+            return;
+        }
+
+        var serviceId = pbf_selector_user.service;
+        var service = pbf_selector_data.services[serviceId];
+
+        if (service.type == 32) {
+            $('pbf-footnote-important').show();
+            return;
+        }
+        $('pbf-footnote-important').hide();
+    }
     function pbf_type_recalculate() {
         var typewid = $("pbf-input-type");
         var value = 0;
@@ -288,6 +306,7 @@ $_secure = $this->getRequest()->isSecure();
         }
         window["termSlider"+value].change();
         pbf_term_recalculate();
+        pbf_check_hide_note(value);
     }
 
     function pbf_deposit(val) {
@@ -456,7 +475,7 @@ $_secure = $this->getRequest()->isSecure();
 
         if (pbf_selector_data.types.length >= 3) {
             inputType += '<div class="healthy-slider-shorty clearfix">' +
-            '<input id="pbf-input-type" name="pbf-input-type" class="pbf-input-hidden" type="range" min="0" max="'+(pbf_selector_data.types.length-1)+'" value ="0"/>' +
+            '<input id="pbf-input-type" name="pbf-input-type" class="pbf-input-hidden" type="range" min="0" max="'+(pbf_selector_data.types.length-1)+'" autocomplete="off" value ="0"/>' +
             '<div id="pbf-types-slider" class="healthy-slider"> <div class="slider-marker"></div> <div class="slider-pointer"></div> </div>' +
             '<ul id="pbf-types-ruler" class="healthy-ruler">';
             for (index = 0; index < pbf_selector_data.types.length; ++index) {
@@ -466,7 +485,7 @@ $_secure = $this->getRequest()->isSecure();
         } else if (pbf_selector_data.types.length == 2) {
             inputType += '<div class="healthy-slider-toggle-wrapper">';
             inputType += '<div class="healthy-slider-toggle clearfix">' +
-            '<input id="pbf-input-type" name="pbf-input-type" class="pbf-input-hidden" type="range" min="0" max="'+(pbf_selector_data.types.length-1)+'" value ="0"/>' +
+            '<input id="pbf-input-type" name="pbf-input-type" class="pbf-input-hidden" type="range" min="0" max="'+(pbf_selector_data.types.length-1)+'" autocomplete="off" value ="0"/>' +
             '<div id="pbf-types-slider" class="healthy-slider"> <div class="slider-marker"></div> <div class="slider-pointer"></div> </div>' +
             '<ul id="pbf-types-ruler" class="healthy-ruler ruler-toggle">';
             for (index = 0; index < pbf_selector_data.types.length; ++index) {
@@ -480,9 +499,9 @@ $_secure = $this->getRequest()->isSecure();
 
         inputTerm = '<div id="pbf-input-term-wrapper">';
         if (pbf_selector_data.terms.length > 1) {
-            inputTerm += '<input id="pbf-input-term" name="pbf-input-term"  class="pbf-input-hidden" type="range" min="0" max="'+(pbf_selector_data.terms.length - 1)+'" value ="0"/>';
+            inputTerm += '<input id="pbf-input-term" name="pbf-input-term"  class="pbf-input-hidden" type="range" min="0" max="'+(pbf_selector_data.terms.length - 1)+'" autocomplete="off" value ="0"/>';
             pbf_selector_data.types.each(function(type, key){
-                inputTerm += '<input id="pbf-input-term-'+key+'" name="pbf-input-term-'+key+'" class="pbf-input-hidden" type="range" min="0" max="'+(pbf_selector_data.subterms[key].length-1)+'" value ="0"/>';
+                inputTerm += '<input id="pbf-input-term-'+key+'" name="pbf-input-term-'+key+'" class="pbf-input-hidden" type="range" min="0" max="'+(pbf_selector_data.subterms[key].length-1)+'" autocomplete="off" value ="0"/>';
                 inputTerm += '<div id="pbf-term-slider-'+key+'" class="healthy-slider pbf-term-hide"> <div class="slider-marker"></div> <div class="slider-pointer"></div> </div>';
                 inputTerm += '<ul id="pbf-term-ruler-'+key+'" class="healthy-ruler pbf-term-hide">';
                 pbf_selector_data.subterms[key].each(function(term, tkey){

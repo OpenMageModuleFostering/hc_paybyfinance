@@ -370,4 +370,35 @@ class HC_PayByFinance_Model_Observer
         }
     }
 
+    /**
+     * Validation of shipping an billing address
+     *
+     * @param Event $event Event
+     *
+     * @return void
+     */
+    public function customerAddressValidationAfter($event)
+    {
+        $session = Mage::getSingleton('paybyfinance/session');
+        if (!$session->getEnabled()) { //widget did not set "Pay By Finance"
+            return;
+        }
+
+        $address = $event->getAddress();
+        if ($address) {
+            /** @var  $address */
+            $quote = $address->getQuote();
+            if ($quote && $quote->getBillingAddress()) {
+                $helper = Mage::helper('paybyfinance');
+                $billingAddress = $quote->getBillingAddress();
+                if ($helper->addressessDiffers($billingAddress, $address)) {
+                    $address->addError(
+                        Mage::helper('customer')->__(
+                            'Shipping address is not same as billing address'
+                        )
+                    );
+                }
+            }
+        }
+    }
 }

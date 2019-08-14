@@ -71,6 +71,17 @@ class HC_PayByFinance_Helper_Data extends Mage_Core_Helper_Data
     const REGEXP_TITLE                   = '/[^a-zA-Z\s\.]/';
     const REGEXP_STREET                  = '/[^a-zA-Z0-9\s\.\-\/]/';
 
+    /**
+     * Status for processing state where acceptance notification came and billing
+     * and shipping addresses are not same...
+     */
+    const STATUS_ADDRESS_INCONSISTENT = 'finance_addr_inconsistent';
+
+    /**
+     * order finanace status when billing/shipping address does not match
+     */
+    const FINANCE_STATUS_FRAUD = 'FRAUD';
+
     private $_types;
 
     /**
@@ -429,4 +440,55 @@ class HC_PayByFinance_Helper_Data extends Mage_Core_Helper_Data
 
         return null;
     }
+
+    /**
+     * Test if addresses are same in regards with shipping/billing address for fraud checks purposes
+     *
+     * @param Address $billingAddress  address 1
+     * @param Address $shippingAddress address 2
+     *
+     * @return bool
+     */
+    public function addressessDiffers($billingAddress, $shippingAddress)
+    {
+        $comparedFields = array(
+            'firstname',
+            'middlename',
+            'lastname',
+            'suffix',
+            'company',
+            'street',
+            'city',
+            'region',
+            'postcode',
+            'country_id',
+            'telephone'
+        );
+
+        $billingAddressFields = $this->filterAddressFields(
+            $billingAddress->getData(), $comparedFields
+        );
+
+        $shippingAddressFields = $this->filterAddressFields(
+            $shippingAddress->getData(), $comparedFields
+        );
+
+        return count(
+            array_diff_assoc($billingAddressFields, $shippingAddressFields)
+        ) > 0;
+    }
+
+    /**
+     * Removes $excludedFields from $addressData array
+     *
+     * @param array $addressData    address data array
+     * @param array $includedFields array of included fields
+     *
+     * @return array
+     */
+    private function filterAddressFields($addressData, $includedFields)
+    {
+        return array_intersect_key($addressData, array_flip($includedFields));
+    }
+
 }

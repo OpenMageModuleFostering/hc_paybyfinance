@@ -80,7 +80,7 @@
                         additional fields to be added to the extension and the
                         eTailer shop before a Y can be passed to PBF. HC-200 -->
 
-                        <!--address_checked translate="label">
+                        <address_checked translate="label">
                             <label>Address checked</label>
                             <comment>
                                 If enabled then this means that the e-tailer has checked the address
@@ -95,7 +95,7 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-                        </address_checked-->
+                        </address_checked>
                         <wizard>
                             <label>Responsive credit wizard</label>
                             <comment>The credit wizard works well on all screen sizes, from mobile phones to desktops</comment>

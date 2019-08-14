@@ -47,7 +47,7 @@ class HC_PayByFinance_CheckoutController extends Mage_Core_Controller_Front_Acti
         }
         $order = Mage::getModel('sales/order')->load($orderId);
         $eligibleProducts = $cartHelper->getEligibleProducts($order->getAllItems());
-        $eligibleAmount = $cartHelper->getEligibleAmount($order->getAllItems());
+        $eligibleAmount = $cartHelper->getEligibleAmountForRedirect($order->getAllItems());
         $serviceId = $order->getFinanceService();
         $service = Mage::getModel('paybyfinance/service')->load($serviceId);
         $address = $order->getBillingAddress();
@@ -57,7 +57,6 @@ class HC_PayByFinance_CheckoutController extends Mage_Core_Controller_Front_Acti
         if ($includeShipping) {
             $shippingCost = $order->getShippingInclTax();
         }
-        $mode = Mage::getStoreConfig($helper::XML_PATH_CONNECTION_MODE);
 
         $calculator = Mage::getModel('paybyfinance/calculator');
         $calculator->setService($serviceId)
@@ -73,15 +72,18 @@ class HC_PayByFinance_CheckoutController extends Mage_Core_Controller_Front_Acti
         $productsInForm = array();
         $productCount = 0;
         $additionalItems = 0;
-        foreach ($eligibleProducts as $key => $product) {
+        foreach ($eligibleProducts as $product) {
             $productName = $helper->sanitizeProductName($product->getName());
-            $productsInForm['gc' . $productCount] = $product->getSku();
-            $productsInForm['pc' . $productCount] = $product->getSku();
-            $productsInForm['gd' . $productCount] = $productName;
-            $productsInForm['q' . $productCount] = intval($product->getQtyOrdered());
-            $productsInForm['gp' . $productCount] =
-                floor($product->getPriceInclTax() * 10000) / 10000;
-            $productCount++;
+            // same rules for product names and SKU's
+            $productSKU = $helper->sanitizeProductName($product->getSku());
+            if ($product->getPriceInclTax() != 0) {
+                $productsInForm['gc' . $productCount] = $productSKU;
+                $productsInForm['pc' . $productCount] = $productSKU;
+                $productsInForm['gd' . $productCount] = $productName;
+                $productsInForm['q' . $productCount] = floatval($product->getQtyOrdered());
+                $productsInForm['gp' . $productCount] = floatval($product->getPriceInclTax());
+                $productCount++;
+            }
         }
 
         if ($includeShipping && $order->getShippingInclTax() > 0) {
@@ -122,7 +124,6 @@ class HC_PayByFinance_CheckoutController extends Mage_Core_Controller_Front_Acti
             $productsInForm['gp' . ($productCount)] = number_format(
                 $giftcard, 2, '.', ''
             );
-            $productCount++;
         }
         $deferredServicesProperties = array();
         if (HC_PayByFinance_Model_Config_Source_Type::isDeferredType(
@@ -130,6 +131,12 @@ class HC_PayByFinance_CheckoutController extends Mage_Core_Controller_Front_Acti
         )
         ) {
             $deferredServicesProperties['cdperiod'] = $service->getDeferTerm();
+        }
+
+        $interestOptionServicesProperties = array();
+        if (HC_PayByFinance_Model_Config_Source_Type::TYPE33 == $service->getType()
+        ) {
+            $interestOptionServicesProperties['optperiod'] = $service->getOptionTerm();
         }
 
 
@@ -161,12 +168,19 @@ class HC_PayByFinance_CheckoutController extends Mage_Core_Controller_Front_Acti
                                 : '')
                         )
                     ),
+                    /* One of the below 3 fields are required if "Address Checked" is turned on.
+                       Because there's no universal way adding it, it's the seller's responsibility
+                       to add the fields to the checkout templates. */
+                    'houseName' => $helper->sanitizeStreet($address->getHouseName()),
+                    'houseNumber' => $helper->sanitizeStreet($address->getHouseNumber()),
+                    'flatNumber' => $helper->sanitizeStreet($address->getFlatNumber()),
                     'town' => $helper->sanitizeName($address->getCity()),
                     'postcode' => $address->getPostcode(),
                     'email' => $order->getCustomerEmail(),
                 ),
                 $productsInForm,
-                $deferredServicesProperties
+                $deferredServicesProperties,
+                $interestOptionServicesProperties
             )
         );
 

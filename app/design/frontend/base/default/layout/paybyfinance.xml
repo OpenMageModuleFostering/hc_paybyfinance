@@ -18,9 +18,11 @@
         </reference>
     </checkout_cart_index>
     <checkout_onepage_review>
-        <reference name="root">
-            <action method="setTemplate"><template>checkout/onepage/review/info-pbf.phtml</template></action>
+        <!-- Adding grand total note -->
+        <reference name="checkout.onepage.review.info.items.after">
+            <block type="core/template" name="grand.total.pgf.info"  template="checkout/onepage/review/grand-total-note-pbf.phtml"/>
         </reference>
+
         <reference name="checkout.onepage.review.info.totals">
             <action method="setTemplate"><template>checkout/onepage/review/totals-pbf.phtml</template></action>
         </reference>
@@ -228,5 +230,45 @@
             </reference>
         </reference>
     </sales_email_order_creditmemo_items>
+
+    <!-- Adding customer account edit address house_flat, house_number, house_name -->
+    <customer_address_form translate="label">
+        <reference name="head">
+            <action method="addItem" ifconfig="hc_paybyfinance/general/address_checked">
+                <type>skin_js</type>
+                <name>js/paybyfinance/adress-enhanced-validation.js</name>
+            </action>
+        </reference>
+
+        <reference name="customer_address_edit">
+            <action method="setTemplate" ifconfig="hc_paybyfinance/general/address_checked">
+                <template>paybyfinance/enhaceaddress/customer/address/edit.phtml</template>
+            </action>
+
+        </reference>
+    </customer_address_form>
+
+    <!-- Adding checkout address edit house_flat, house_number, house_name -->
+    <checkout_onepage_index>
+        <reference name="head">
+            <action method="addItem" ifconfig="hc_paybyfinance/general/address_checked">
+                <type>skin_js</type>
+                <name>js/paybyfinance/adress-enhanced-validation.js</name>
+            </action>
+        </reference>
+
+        <reference name="checkout.onepage.billing">
+            <action method="setTemplate" ifconfig="hc_paybyfinance/general/address_checked">
+                <template>paybyfinance/enhaceaddress/customer/address/onepage/billing.phtml</template>
+            </action>
+        </reference>
+
+        <reference name="checkout.onepage.shipping">
+            <action method="setTemplate" ifconfig="hc_paybyfinance/general/address_checked">
+                <template>paybyfinance/enhaceaddress/customer/address/onepage/shipping.phtml</template>
+            </action>
+        </reference>
+    </checkout_onepage_index>
+
 
 </layout>
