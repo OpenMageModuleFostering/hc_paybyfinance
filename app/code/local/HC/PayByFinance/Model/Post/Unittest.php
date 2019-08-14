@@ -16,7 +16,7 @@
 */
 
 /**
-* Provides the list of product types to be used in admin config fields
+* Hitachi Post TEst Model
 *
 * @category HC
 * @package  PayByFinance
@@ -24,22 +24,9 @@
 * @license  http://www.gnu.org/copyleft/gpl.html GPL License
 * @link     http://www.healthywebsites.co.uk/
 */
-class HC_PayByFinance_Model_Config_Source_Connectionmode
+class HC_PayByFinance_Model_Post_Unittest extends HC_PayByFinance_Model_Post_Abstract
 {
-    /**
-     * toOptionArray
-     *
-     * @return array Indexed array of options.
-     */
-    public function toOptionArray()
-    {
-        $options = array(
-            'test' => 'Test',
-            'simulation' => 'Simulation',
-            'live' => 'Live',
-        );
-
-        return $options;
-    }
-
+    const POST_URL   = 'https://demo.creditmaster2.co.uk/Ecommerce/etailer/createQuote.action';
+    const NOTIFY_URL = 'https://demo.creditmaster2.co.uk/Ecommerce/etailer/notify.action';
+    const MODE       = 'unittest';
 }

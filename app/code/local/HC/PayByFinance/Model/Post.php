@@ -10,7 +10,7 @@
 * @package   PayByFinance
 * @author    Healthy Websites <support@healthywebsites.co.uk>
 * @copyright 2014 Hitachi Capital
-* @license   http://www.healthywebsites.co.uk/license.html HWS License
+* @license   http://www.gnu.org/copyleft/gpl.html GPL License
 * @link      http://www.healthywebsites.co.uk/
 *
 */
@@ -21,7 +21,7 @@
 * @category HC
 * @package  PayByFinance
 * @author   Healthy Websites <support@healthywebsites.co.uk>
-* @license  http://www.healthywebsites.co.uk/license.html HWS License
+* @license  http://www.gnu.org/copyleft/gpl.html GPL License
 * @link     http://www.healthywebsites.co.uk/
 */
 class HC_PayByFinance_Model_Post extends Mage_Core_Model_Abstract
@@ -83,17 +83,34 @@ class HC_PayByFinance_Model_Post extends Mage_Core_Model_Abstract
         $helper = Mage::helper('paybyfinance');
         $adapter = $this->getPostAdapter();
 
+        $addressChecked = Mage::getStoreConfig($helper::XML_PATH_ADDRESS_CHECKED);
+        $wizard = Mage::getStoreConfig($helper::XML_PATH_WIZARD);
+
         $fields = array(
             'id' => trim((string) Mage::getStoreConfig($helper::XML_PATH_PBF_ACCOUNT_ID1)),
             'id2' => trim((string) Mage::getStoreConfig($helper::XML_PATH_PBF_ACCOUNT_ID2)),
             'ver' => $adapter::PROTOCOL_VERSION,
             'eea' => Mage::getStoreConfig($helper::XML_PATH_ERROR_NOTIFY_EMAIL),
-            'eurl' => Mage::getUrl('paybyfinance/checkout/response'),
-            'acceptedURL' => Mage::getUrl('paybyfinance/checkout/response'),
-            'referredURL' => Mage::getUrl('paybyfinance/checkout/response'),
-            'declinedURL' => Mage::getUrl('paybyfinance/checkout/response'),
-            'toStoreURL' => Mage::getUrl('paybyfinance/checkout/response'),
-            'notificationURL' => Mage::getUrl('paybyfinance/notification'),
+            'eurl' => Mage::getUrl(
+                'paybyfinance/checkout/response', array("_secure" => true)
+            ),
+            'acceptedURL' => Mage::getUrl(
+                'paybyfinance/checkout/response', array("_secure" => true)
+            ),
+            'referredURL' => Mage::getUrl(
+                'paybyfinance/checkout/response', array("_secure" => true)
+            ),
+            'declinedURL' => Mage::getUrl(
+                'paybyfinance/checkout/response', array("_secure" => true)
+            ),
+            'toStoreURL' => Mage::getUrl(
+                'paybyfinance/checkout/response', array("_secure" => true)
+            ),
+            'notificationURL' => Mage::getUrl(
+                'paybyfinance/notification', array("_secure" => true)
+            ),
+            'address_checked' => $addressChecked == "1" ? 'Y' : 'N',
+            'wizard' => $wizard == "1" ? 'Y' : 'N',
         );
         $data = array_merge($data, $fields);
 

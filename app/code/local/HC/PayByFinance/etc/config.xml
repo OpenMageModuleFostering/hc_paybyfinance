@@ -2,7 +2,7 @@
 <config>
     <modules>
         <HC_PayByFinance>
-            <version>1.0.2</version>
+            <version>1.0.3</version>
         </HC_PayByFinance>
     </modules>
     <global>
@@ -132,6 +132,15 @@
                     </paybyfinance_salesquoteaddressconvert>
                 </observers>
             </sales_convert_quote_address_to_order>
+            <paybyfinance_quote_financeamount_collect_before>
+                <observers>
+                    <paybyfinance_collectafter>
+                        <type>singleton</type>
+                        <class>paybyfinance/sessionobserver</class>
+                        <method>collectAfter</method>
+                    </paybyfinance_collectafter>
+                </observers>
+            </paybyfinance_quote_financeamount_collect_before>
             <sales_order_save_after>
                 <observers>
                     <paybyfinance_salesordersaveObserver>
@@ -215,6 +224,8 @@
                 <enable_producttypes>simple</enable_producttypes>
                 <fixed_deposit>0</fixed_deposit>
                 <include_shipping>1</include_shipping>
+                <address_checked>0</address_checked>
+                <wizard>0</wizard>
             </general>
             <order_status>
                 <accepted>finance_accepted</accepted>

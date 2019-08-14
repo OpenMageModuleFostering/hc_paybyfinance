@@ -10,7 +10,7 @@
 * @package   PayByFinance
 * @author    Healthy Websites <support@healthywebsites.co.uk>
 * @copyright 2014 Hitachi Capital
-* @license   http://www.healthywebsites.co.uk/license.html HWS License
+* @license   http://www.gnu.org/copyleft/gpl.html GPL License
 * @link      http://www.healthywebsites.co.uk/
 *
 */
@@ -288,7 +288,7 @@ $_data = json_decode($this->getJSON());
         var service_id = $$('#paybyfinance input:checked[name=service]')[0].value;
         var deposit = $("pbf-input-deposit").value * 10;
         var postBody = 'service=' + service_id + '&deposit=' + deposit + '&enabled=1';
-        new Ajax.Request('<?php echo Mage::getUrl("paybyfinance/session/save") ?>', {method: 'post', postBody: postBody,
+        new Ajax.Request('<?php echo Mage::getUrl("paybyfinance/session/save", array("_secure" => true)) ?>', {method: 'post', postBody: postBody,
             onSuccess: function() {
                 productAddToCartForm.submit(this);
             },
@@ -300,7 +300,7 @@ $_data = json_decode($this->getJSON());
 
     function pbf_ajax_update()
     {
-        new Ajax.Request('<?php echo Mage::getUrl("paybyfinance/selector/services") ?>', {
+        new Ajax.Request('<?php echo Mage::getUrl("paybyfinance/selector/services", array("_secure" => true)) ?>', {
             onSuccess: function(response) {
                 pbf_selector_data = response.responseJSON;
                 if (pbf_selector_user.service) {
@@ -333,7 +333,7 @@ $_data = json_decode($this->getJSON());
 
         var deposit = $("pbf-input-deposit").value * 10;
         var postBody = 'service=' + service_id + '&deposit=' + deposit + '&enabled=' + enabled;
-        new Ajax.Request('<?php echo Mage::getUrl("paybyfinance/session/save") ?>', {method: 'post', postBody: postBody,
+        new Ajax.Request('<?php echo Mage::getUrl("paybyfinance/session/save", array("_secure" => true)) ?>', {method: 'post', postBody: postBody,
             onSuccess: function() {
                 if(document.getElementById('onestepcheckout-form')) {
                     //if we're using onestepcheckout

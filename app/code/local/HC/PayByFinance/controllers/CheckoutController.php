@@ -10,7 +10,7 @@
 * @package   PayByFinance
 * @author    Healthy Websites <support@healthywebsites.co.uk>
 * @copyright 2014 Hitachi Capital
-* @license   http://www.healthywebsites.co.uk/license.html HWS License
+* @license   http://www.gnu.org/copyleft/gpl.html GPL License
 * @link      http://www.healthywebsites.co.uk/
 *
 */
@@ -23,7 +23,7 @@
 * @category HC
 * @package  PayByFinance
 * @author   Healthy Websites <support@healthywebsites.co.uk>
-* @license  http://www.healthywebsites.co.uk/license.html HWS License
+* @license  http://www.gnu.org/copyleft/gpl.html GPL License
 * @link     http://www.healthywebsites.co.uk/
 */
 class HC_PayByFinance_CheckoutController extends Mage_Core_Controller_Front_Action
@@ -157,6 +157,23 @@ class HC_PayByFinance_CheckoutController extends Mage_Core_Controller_Front_Acti
 
         // Generates the forwarder form
         echo $post->getRedirectForm();
+
+        // Log the generated POST data
+        $logId = $helper->log(
+            "getRedirectForm: \n" . $helper->arrayDump($post->getPostAdapter()->getPostData()),
+            'post'
+        );
+
+        $formUrl = Mage::helper("adminhtml")->getUrl(
+            'adminhtml/paybyfinance_redirect/view',
+            array('id' => $logId)
+        );
+        $formUrl = '<a href="' . $formUrl . '">click here.</a>';
+
+        $order->addStatusHistoryComment('Customer redirected to PBF with this POST: ' . $formUrl)
+            ->setIsVisibleOnFront(false)
+            ->setIsCustomerNotified(false);
+        $order->save();
     }
 
     /**

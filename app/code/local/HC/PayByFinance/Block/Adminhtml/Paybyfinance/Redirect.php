@@ -9,14 +9,16 @@
 * @category  HC
 * @package   PayByFinance
 * @author    Healthy Websites <support@healthywebsites.co.uk>
-* @copyright 2014 Hitachi Capital
+* @copyright 2014 Healthy Websites
 * @license   http://www.gnu.org/copyleft/gpl.html GPL License
 * @link      http://www.healthywebsites.co.uk/
 *
 */
 
 /**
-* Provides the list of product types to be used in admin config fields
+* Redirect debug preview block
+*
+* @uses     Mage_Adminhtml_Block_Template
 *
 * @category HC
 * @package  PayByFinance
@@ -24,22 +26,21 @@
 * @license  http://www.gnu.org/copyleft/gpl.html GPL License
 * @link     http://www.healthywebsites.co.uk/
 */
-class HC_PayByFinance_Model_Config_Source_Connectionmode
+class HC_PayByFinance_Block_Adminhtml_Paybyfinance_Redirect
+    extends Mage_Adminhtml_Block_Template
 {
     /**
-     * toOptionArray
+     * Constructor
      *
-     * @return array Indexed array of options.
+     * @return mixed Value.
      */
-    public function toOptionArray()
+    public function __construct()
     {
-        $options = array(
-            'test' => 'Test',
-            'simulation' => 'Simulation',
-            'live' => 'Live',
-        );
-
-        return $options;
+        $this->_controller = 'adminhtml_paybyfinance_redirect';
+        $this->_blockGroup = 'paybyfinance';
+        $helper = Mage::helper('paybyfinance');
+        $this->_headerText = $helper->__('Redirect');
+        parent::__construct();
     }
 
 }

@@ -4,6 +4,9 @@
         <HC_PayByFinance>
             <active>true</active>
             <codePool>local</codePool>
+            <depends>
+                <Mage_Sales />
+            </depends>
         </HC_PayByFinance>
     </modules>
 </config>

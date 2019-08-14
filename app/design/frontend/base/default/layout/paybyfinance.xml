@@ -1,6 +1,27 @@
 <?xml version="1.0"?>
 <layout>
 
+<!-- Add this to your template in order to enable PBF template modifications -->
+<!-- Or check the referenced templates and add the changes to your template  -->
+<!-- If you have any problems with the templates, comment out this section   -->
+    <checkout_cart_index>
+        <reference name="checkout.cart">
+            <action method="setCartTemplate"><value>checkout/cart-pbf.phtml</value></action>
+        </reference>
+        <reference name="checkout.cart.totals">
+            <action method="setTemplate"><template>checkout/cart/totals-pbf.phtml</template></action>
+        </reference>
+    </checkout_cart_index>
+    <checkout_onepage_review>
+        <reference name="root">
+            <action method="setTemplate"><template>checkout/onepage/review/info-pbf.phtml</template></action>
+        </reference>
+        <reference name="checkout.onepage.review.info.totals">
+            <action method="setTemplate"><template>checkout/onepage/review/totals-pbf.phtml</template></action>
+        </reference>
+    </checkout_onepage_review>
+<!-- / If you have any problems with the templates, comment out this section -->
+
     <default>
         <reference name="head">
             <action method="addCss"><link>css/paybyfinance.css</link></action>

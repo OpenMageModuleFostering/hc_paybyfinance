@@ -10,7 +10,7 @@
 * @package   PayByFinance
 * @author    Healthy Websites <support@healthywebsites.co.uk>
 * @copyright 2014 Hitachi Capital
-* @license   http://www.healthywebsites.co.uk/license.html HWS License
+* @license   http://www.gnu.org/copyleft/gpl.html GPL License
 * @link      http://www.healthywebsites.co.uk/
 *
 */
@@ -23,7 +23,7 @@
 * @category HC
 * @package  PayByFinance
 * @author   Healthy Websites <support@healthywebsites.co.uk>
-* @license  http://www.healthywebsites.co.uk/license.html HWS License
+* @license  http://www.gnu.org/copyleft/gpl.html GPL License
 * @link     http://www.healthywebsites.co.uk/
 */
 class HC_PayByFinance_Helper_Data extends Mage_Core_Helper_Data
@@ -33,6 +33,8 @@ class HC_PayByFinance_Helper_Data extends Mage_Core_Helper_Data
     const XML_PATH_MINIMUM_PRICE_BASKET  = 'hc_paybyfinance/general/minimum_price_basket';
     const XML_PATH_FIXED_DEPOSIT         = 'hc_paybyfinance/general/fixed_deposit';
     const XML_PATH_INCLUDE_SHIPPING      = 'hc_paybyfinance/general/include_shipping';
+    const XML_PATH_ADDRESS_CHECKED       = 'hc_paybyfinance/general/address_checked';
+    const XML_PATH_WIZARD                = 'hc_paybyfinance/general/wizard';
     const XML_PATH_STATUS_ACCEPTED       = 'hc_paybyfinance/order_status/accepted';
     const XML_PATH_STATUS_REFERRED       = 'hc_paybyfinance/order_status/referred';
     const XML_PATH_STATUS_DECLINED       = 'hc_paybyfinance/order_status/declined';
@@ -194,7 +196,7 @@ class HC_PayByFinance_Helper_Data extends Mage_Core_Helper_Data
      *
      * @throws Exception
      *
-     * @return void
+     * @return integer
      */
     public function log($data, $type = 'log')
     {
@@ -203,8 +205,6 @@ class HC_PayByFinance_Helper_Data extends Mage_Core_Helper_Data
         } else {
             throw new Exception("Usage of array or object is discouraged for security reasons.", 1);
         }
-
-        $this->logDB($data, $type);
 
         if (!file_exists(Mage::getBaseDir('var').'/log')) {
             mkdir(Mage::getBaseDir('var').'/log');
@@ -223,6 +223,8 @@ class HC_PayByFinance_Helper_Data extends Mage_Core_Helper_Data
         if ($type == 'notification') {
             Mage::log($data, null, self::ERROR_LOG_PATH_NOTIFICATION);
         }
+
+        return $this->logDB($data, $type);
     }
 
     /**
@@ -231,7 +233,7 @@ class HC_PayByFinance_Helper_Data extends Mage_Core_Helper_Data
      * @param string $data data as returned by print_r or any text to log
      * @param string $type log type
      *
-     * @return void
+     * @return integer Id of the saved log.
      */
     public function logDB($data, $type ='log')
     {
@@ -245,7 +247,7 @@ class HC_PayByFinance_Helper_Data extends Mage_Core_Helper_Data
 
         if ($type == 'log') {
             $log->setType('General')
-                ->setFlow('outgoing')
+                ->setFlow('Outgoing')
                 ->setTime($currentTime)
                 ->setContent($data)
                 ->save();
@@ -274,6 +276,8 @@ class HC_PayByFinance_Helper_Data extends Mage_Core_Helper_Data
                 ->setContent($data)
                 ->save();
         }
+
+        return $log->getId();
     }
 
     /**

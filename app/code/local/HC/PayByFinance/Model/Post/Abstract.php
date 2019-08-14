@@ -10,7 +10,7 @@
 * @package   PayByFinance
 * @author    Healthy Websites <support@healthywebsites.co.uk>
 * @copyright 2014 Hitachi Capital
-* @license   http://www.healthywebsites.co.uk/license.html HWS License
+* @license   http://www.gnu.org/copyleft/gpl.html GPL License
 * @link      http://www.healthywebsites.co.uk/
 *
 */
@@ -21,7 +21,7 @@
 * @category HC
 * @package  PayByFinance
 * @author   Healthy Websites <support@healthywebsites.co.uk>
-* @license  http://www.healthywebsites.co.uk/license.html HWS License
+* @license  http://www.gnu.org/copyleft/gpl.html GPL License
 * @link     http://www.healthywebsites.co.uk/
 */
 abstract class HC_PayByFinance_Model_Post_Abstract extends Mage_Core_Model_Abstract
@@ -31,7 +31,19 @@ abstract class HC_PayByFinance_Model_Post_Abstract extends Mage_Core_Model_Abstr
     private $_pbfInformation;
 
     private $_ciphers = array(
-        'RC4-SHA',
+        'ECDHE-RSA-AES256-GCM-SHA384',
+        'ECDHE-RSA-AES256-SHA384',
+        'ECDHE-RSA-AES256-SHA',
+        'AES256-GCM-SHA384',
+        'AES256-SHA256',
+        'AES256-SHA',
+        'DES-CBC3-SHA',
+        'ECDHE-RSA-AES128-GCM-SHA256',
+        'ECDHE-RSA-AES128-SHA256',
+        'ECDHE-RSA-AES128-SHA',
+        'AES128-GCM-SHA256',
+        'AES128-SHA256',
+        'AES128-SHA',
     );
 
     /**
@@ -81,9 +93,6 @@ abstract class HC_PayByFinance_Model_Post_Abstract extends Mage_Core_Model_Abstr
      */
     public function getRedirectForm()
     {
-        $helper = Mage::helper('paybyfinance');
-        $helper->log("getRedirectForm: \n" . $helper->arrayDump($this->_pbfInformation), 'post');
-
         $block = Mage::app()->getLayout()->createBlock('paybyfinance/checkout_redirect')
             ->setPostContent($this->_pbfInformation)
             ->setPostUrl($this::POST_URL)
@@ -91,5 +100,15 @@ abstract class HC_PayByFinance_Model_Post_Abstract extends Mage_Core_Model_Abstr
             ->setTemplate('paybyfinance/form.phtml');
 
         return $block->toHtml();
+    }
+
+    /**
+     * Get generated post data.
+     *
+     * @return array POST fields to be sent to the PBF servers
+     */
+    public function getPostData()
+    {
+        return $this->_pbfInformation;
     }
 }

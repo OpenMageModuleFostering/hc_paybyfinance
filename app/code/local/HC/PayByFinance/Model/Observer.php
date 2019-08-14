@@ -10,7 +10,7 @@
 * @package   PayByFinance
 * @author    Healthy Websites <support@healthywebsites.co.uk>
 * @copyright 2014 Hitachi Capital
-* @license   http://www.healthywebsites.co.uk/license.html HWS License
+* @license   http://www.gnu.org/copyleft/gpl.html GPL License
 * @link      http://www.healthywebsites.co.uk/
 *
 */
@@ -21,7 +21,7 @@
 * @category HC
 * @package  PayByFinance
 * @author   Healthy Websites <support@healthywebsites.co.uk>
-* @license  http://www.healthywebsites.co.uk/license.html HWS License
+* @license  http://www.gnu.org/copyleft/gpl.html GPL License
 * @link     http://www.healthywebsites.co.uk/
 */
 class HC_PayByFinance_Model_Observer
@@ -29,7 +29,7 @@ class HC_PayByFinance_Model_Observer
     /**
      * Clearing enterprise full page cache after saving a service
      *
-     * @param Object $observer Onserver object
+     * @param Object $observer Observer object
      *
      * @return void
      */
@@ -44,7 +44,7 @@ class HC_PayByFinance_Model_Observer
     /**
      * Converting address data into a quote
      *
-     * @param Object $observer Onserver object
+     * @param Object $observer Observer object
      *
      * @return void
      */
@@ -95,7 +95,7 @@ class HC_PayByFinance_Model_Observer
      * Order save event. Responds only if it's the first save after converted from quote
      * See $order->setFromQuote() in function convertQuoteAddressToOrder()
      *
-     * @param Object $observer Onserver object
+     * @param Object $observer Observer object
      *
      * @return void
      */
@@ -119,7 +119,7 @@ class HC_PayByFinance_Model_Observer
     /**
      * Checkout success event to redirect to Hitachi
      *
-     * @param Object $observer Onserver object
+     * @param Object $observer Observer object
      *
      * @return void
      */

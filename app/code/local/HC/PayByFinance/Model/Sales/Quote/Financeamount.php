@@ -10,7 +10,7 @@
 * @package   PayByFinance
 * @author    Healthy Websites <support@healthywebsites.co.uk>
 * @copyright 2014 Hitachi Capital
-* @license   http://www.healthywebsites.co.uk/license.html HWS License
+* @license   http://www.gnu.org/copyleft/gpl.html GPL License
 * @link      http://www.healthywebsites.co.uk/
 *
 */
@@ -23,7 +23,7 @@
 * @category HC
 * @package  PayByFinance
 * @author   Healthy Websites <support@healthywebsites.co.uk>
-* @license  http://www.healthywebsites.co.uk/license.html HWS License
+* @license  http://www.gnu.org/copyleft/gpl.html GPL License
 * @link     http://www.healthywebsites.co.uk/
 */
 class HC_PayByFinance_Model_Sales_Quote_Financeamount
@@ -54,6 +54,13 @@ class HC_PayByFinance_Model_Sales_Quote_Financeamount
         }
 
         $session = Mage::getSingleton('paybyfinance/session');
+
+        Mage::dispatchEvent(
+            'paybyfinance_quote_financeamount_collect_before', array(
+                'address' => $address,
+                'session' => $session
+            )
+        );
 
         if ($session->getData('enabled')) {
             $calculator = Mage::getModel('paybyfinance/calculator');
