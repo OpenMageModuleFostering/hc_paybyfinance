@@ -26,7 +26,7 @@
  */
 class HC_PayByFinance_Model_Post_Live extends HC_PayByFinance_Model_Post_Abstract
 {
-    const POST_URL   = 'https://www.paybyfinance.co.uk/Ecommerce/etailer/createQuote.action';
-    const NOTIFY_URL = 'https://www.paybyfinance.co.uk/Ecommerce/etailer/notify.action';
-    const MODE       = 'live';
+    protected $_postUrl   = 'https://www.paybyfinance.co.uk/Ecommerce/etailer/createQuote.action';
+    protected $_notifyUrl = 'https://www.paybyfinance.co.uk/Ecommerce/etailer/notify.action';
+    protected $_mode      = 'live';
 }

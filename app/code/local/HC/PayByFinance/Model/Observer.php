@@ -291,7 +291,10 @@ class HC_PayByFinance_Model_Observer
     public function collectionLoadAfter(Varien_Event_Observer $observer)
     {
         $helper = Mage::helper('paybyfinance');
-        $calculator = Mage::getModel('paybyfinance/calculator');
+        if (!$helper->isActive()) {
+            return;
+        }
+        $calculator = Mage::getSingleton('paybyfinance/calculator');
 
         Varien_Profiler::start('hc_paybyfinance_collection_load_after');
         $collection = $observer->getCollection();

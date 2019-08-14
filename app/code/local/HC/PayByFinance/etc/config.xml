@@ -2,7 +2,7 @@
 <config>
     <modules>
         <HC_PayByFinance>
-            <version>1.0.5</version>
+            <version>1.0.6</version>
         </HC_PayByFinance>
     </modules>
     <global>
@@ -293,6 +293,8 @@
             </blocks_info>
             <account>
                 <connectionmode>test</connectionmode>
+                <connection_post>https://demo.creditmaster2.co.uk/Ecommerce/etailer/createQuote.action</connection_post>
+                <connection_notify>https://demo.creditmaster2.co.uk/Ecommerce/etailer/notify.action</connection_notify>
                 <id1></id1>
                 <id2></id2>
                 <erroremail></erroremail>

@@ -171,6 +171,18 @@ class HC_PayByFInance_Block_Adminhtml_Paybyfinance_Service_Grid
             )
         );
 
+        if (!Mage::app()->isSingleStoreMode()) {
+            $this->addColumn(
+                'store_id', array(
+                    'header'    => $helper->__('Store Id'),
+                    'align'     => 'right',
+                    'type'  => 'store',
+                    'store_view' => true,
+                    'index'     => 'store_id',
+                )
+            );
+        }
+
         return parent::_prepareColumns();
     }
 

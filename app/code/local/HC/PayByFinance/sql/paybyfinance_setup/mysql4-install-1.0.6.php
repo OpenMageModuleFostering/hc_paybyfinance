@@ -50,6 +50,7 @@ $installer->run(
     "
 DROP TABLE IF EXISTS {$this->getTable('paybyfinance_service')};
 CREATE TABLE {$this->getTable('paybyfinance_service')} (
+  `store_id` SMALLINT(5) UNSIGNED NULL,
   `name` varchar(255) NOT NULL default '',
   `service_id` int(11) unsigned NOT NULL auto_increment,
   `type` smallint(6) NOT NULL default '0',
@@ -62,7 +63,9 @@ CREATE TABLE {$this->getTable('paybyfinance_service')} (
   `min_amount` decimal(9,4) NOT NULL default '0',
   `multiplier` double(10,8) NOT NULL default '0',
   `rpm` double(10,8) NOT NULL default '0',
-  PRIMARY KEY (`service_id`)
+  PRIMARY KEY (`service_id`),
+  CONSTRAINT `FK_paybyfinance_serice_core_store_store_id` FOREIGN KEY(`store_id`)
+        REFERENCES `{$this->getTable('core_store')}` (`store_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
     "
 );

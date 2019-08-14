@@ -161,7 +161,9 @@ class HC_PayByFinance_Model_Calculator extends Varien_Object
     public function getAllServices()
     {
         if (!$this->_allServices) {
-            $this->_allServices = Mage::getModel('paybyfinance/service')->getCollection();
+            $this->_allServices = Mage::getModel('paybyfinance/service')
+                ->getCollection()
+                ->storeFilter(Mage::app()->getStore()->getStoreId());
         }
 
         return $this->_allServices;
@@ -182,6 +184,9 @@ class HC_PayByFinance_Model_Calculator extends Varien_Object
             $depositAmount = round($depositAmount, 2);
             $financeAmount = $price - $depositAmount;
             $financeAmount = intval((string) ($financeAmount * 100)) / 100;
+            if ($financeAmount < $service->getMinAmount()) {
+                continue;
+            }
 
             if ($service->getType() == 32) {
                 $installment = $this->calcMonthlyPaymentInterestFree($financeAmount, $service);

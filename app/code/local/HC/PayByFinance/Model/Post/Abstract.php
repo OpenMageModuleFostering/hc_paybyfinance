@@ -28,6 +28,10 @@ abstract class HC_PayByFinance_Model_Post_Abstract extends Mage_Core_Model_Abstr
 {
     const PROTOCOL_VERSION               = '1.0';
 
+    protected $_postUrl;
+    protected $_notifyUrl;
+    protected $_mode;
+
     private $_pbfInformation;
 
     private $_ciphers = array(
@@ -69,7 +73,7 @@ abstract class HC_PayByFinance_Model_Post_Abstract extends Mage_Core_Model_Abstr
     public function post()
     {
         $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $this::NOTIFY_URL);
+        curl_setopt($ch, CURLOPT_URL, $this->getNotificationUrl());
         curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($this->_pbfInformation));
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -95,8 +99,8 @@ abstract class HC_PayByFinance_Model_Post_Abstract extends Mage_Core_Model_Abstr
     {
         $block = Mage::app()->getLayout()->createBlock('paybyfinance/checkout_redirect')
             ->setPostContent($this->_pbfInformation)
-            ->setPostUrl($this::POST_URL)
-            ->setMode($this::MODE)
+            ->setPostUrl($this->getPostUrl())
+            ->setMode($this->getMode())
             ->setTemplate('paybyfinance/form.phtml');
 
         return $block->toHtml();
@@ -110,5 +114,35 @@ abstract class HC_PayByFinance_Model_Post_Abstract extends Mage_Core_Model_Abstr
     public function getPostData()
     {
         return $this->_pbfInformation;
+    }
+
+    /**
+     * Get Post URL
+     *
+     * @return string url
+     */
+    protected function getPostUrl()
+    {
+        return $this->_postUrl;
+    }
+
+    /**
+     * Get Notification URL
+     *
+     * @return string url
+     */
+    protected function getNotificationUrl()
+    {
+        return $this->_notifyUrl;
+    }
+
+    /**
+     * Get connection mode
+     *
+     * @return string mode
+     */
+    protected function getMode()
+    {
+        return $this->_mode;
     }
 }

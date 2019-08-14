@@ -79,7 +79,12 @@ class HC_PayByFinance_Block_Status extends Mage_Core_Block_Template
         );
         $helper = Mage::helper('cms');
         $processor = $helper->getBlockTemplateProcessor();
-        $processor->setVariables(array('order_id' => $this->getOrderIdText()));
+        $processor->setVariables(
+            array(
+                'order_id' => $this->getOrderIdText(),
+                'phone' => Mage::getStoreConfig('general/store_information/phone')
+            )
+        );
         $html = $processor->filter($block->getContent());
 
         return $html;

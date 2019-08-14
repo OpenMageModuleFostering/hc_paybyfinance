@@ -62,6 +62,9 @@ class HC_PayByFinance_Model_Sessionobserver
             if (($eligibleAmount) < $minAmount) {
                 $session->setData('enabled', false);
             }
+            if (!$helper->isActive()) {
+                $session->setData('enabled', false);
+            }
         }
 
         return $this;

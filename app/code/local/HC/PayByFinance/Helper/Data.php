@@ -28,6 +28,7 @@
  */
 class HC_PayByFinance_Helper_Data extends Mage_Core_Helper_Data
 {
+    const XML_PATH_ENABLED               = 'hc_paybyfinance/general/active';
     const XML_PATH_PRODUCTTYPES          = 'hc_paybyfinance/general/enable_producttypes';
     const XML_PATH_MINIMUM_PRICE_PRODUCT = 'hc_paybyfinance/general/minimum_price_product';
     const XML_PATH_MINIMUM_PRICE_BASKET  = 'hc_paybyfinance/general/minimum_price_basket';
@@ -49,6 +50,8 @@ class HC_PayByFinance_Helper_Data extends Mage_Core_Helper_Data
     const XML_PATH_PBF_ACCOUNT_ID1       = 'hc_paybyfinance/account/id1';
     const XML_PATH_PBF_ACCOUNT_ID2       = 'hc_paybyfinance/account/id2';
     const XML_PATH_CONNECTION_MODE       = 'hc_paybyfinance/account/connectionmode';
+    const XML_PATH_ACCOUNT_POST          = 'hc_paybyfinance/account/connection_post';
+    const XML_PATH_ACCOUNT_NOTIFY        = 'hc_paybyfinance/account/connection_notify';
     const XML_PATH_ERROR_NOTIFY_EMAIL    = 'hc_paybyfinance/account/erroremail';
     const XML_PATH_ACCOUNT_RETAILERNAME  = 'hc_paybyfinance/account/retailername';
     const XML_PATH_ACCOUNT_TRADINGNAME   = 'hc_paybyfinance/account/tradingname';
@@ -164,17 +167,8 @@ class HC_PayByFinance_Helper_Data extends Mage_Core_Helper_Data
 
         if ($product->getPaybyfinanceEnable() == $options::VALUES_DISABLE) {
             return false;
-        }
-
-        switch ($product->getPaybyfinanceEnable()) {
-            case $options::VALUES_DISABLE:
-                return false;
-            case $options::VALUES_ENABLE:
-                return true;
-            case $options::VALUES_CONFIG:
-            default:
-                // Calculate based on the configuration in the backend
-                break;
+        } elseif ($product->getPaybyfinanceEnable() == $options::VALUES_ENABLE) {
+            return true;
         }
 
         $helper = Mage::helper('paybyfinance');
@@ -184,6 +178,11 @@ class HC_PayByFinance_Helper_Data extends Mage_Core_Helper_Data
         }
         $minPriceProduct = Mage::getStoreConfig($helper::XML_PATH_MINIMUM_PRICE_PRODUCT);
         if ($price < $minPriceProduct) {
+            return false;
+        }
+        $calculator = Mage::getSingleton('paybyfinance/calculator');
+        $minInstallment = $calculator->getLowestMonthlyInstallment($product->getPrice());
+        if (!$minInstallment) {
             return false;
         }
 
@@ -319,5 +318,17 @@ class HC_PayByFinance_Helper_Data extends Mage_Core_Helper_Data
     protected function _processUserInput($data)
     {
         return htmlspecialchars($data);
+    }
+
+    /**
+     * Is finance extension enabled in the backend?
+     *
+     * @return boolean
+     */
+    public function isActive()
+    {
+        $enabled = Mage::getStoreConfig(self::XML_PATH_ENABLED);
+
+        return (boolean) $enabled;
     }
 }

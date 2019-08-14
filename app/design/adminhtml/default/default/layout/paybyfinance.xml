@@ -7,6 +7,18 @@
         </reference>
     </adminhtml_paybyfinance_service_index>
 
+    <adminhtml_paybyfinance_service_edit>
+        <reference name="head">
+            <action method="addJs"><file>paybyfinance/service.js</file></action>
+        </reference>
+    </adminhtml_paybyfinance_service_edit>
+
+    <adminhtml_system_config_edit>
+        <reference name="head">
+            <action method="addJs"><file>paybyfinance/config-edit.js</file></action>
+        </reference>
+    </adminhtml_system_config_edit>
+
     <adminhtml_paybyfinance_redirect_view>
         <reference name="content">
             <block type="paybyfinance/adminhtml_paybyfinance_redirect" name="pbf_redirect" template="paybyfinance/redirect.phtml" />

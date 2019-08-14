@@ -35,7 +35,10 @@ class HC_PayByFinance_Model_Config_Source_Connectionmode
     {
         $options = array(
             'test' => 'Test',
+            'testrtl' => 'Test RTL',
             'simulation' => 'Simulation',
+            'simulationrtl' => 'Simulation RTL',
+            'custom' => 'Custom',
             'live' => 'Live',
         );
 

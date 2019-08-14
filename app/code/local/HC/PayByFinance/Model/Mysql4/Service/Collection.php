@@ -48,6 +48,22 @@ class HC_PayByFinance_Model_Mysql4_Service_Collection
     {
         $condition = array('lteq' => $price);
         $this->addFieldToFilter('min_amount', $condition);
+
+        return $this;
+    }
+
+    /**
+     * Add store filter to the collection
+     *
+     * @param integer $store Store Id
+     *
+     * @return HC_PayByFinance_Model_Mysql4_Service_Collection
+     */
+    public function storeFilter($store)
+    {
+        $condition = array(array('null' => true), array('eq' => $store));
+        $this->addFieldToFilter('store_id', $condition);
+
         return $this;
     }
 }

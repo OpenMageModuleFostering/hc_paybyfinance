@@ -144,6 +144,16 @@ class HC_PayByFinance_Block_Adminhtml_Paybyfinance_Service_Edit_Tab_Form
             )
         );
 
+        $fieldset->addField(
+            'store_id', 'select', array(
+                'label'     => $helper->__('Limit to store'),
+                'required'  => false,
+                'name'      => 'store_id',
+                'values' => Mage::getSingleton('adminhtml/system_store')
+                    ->getStoreValuesForForm(false, true),
+            )
+        );
+
         if ( Mage::getSingleton('adminhtml/session')->getServiceData() ) {
             $form->setValues(
                 Mage::getSingleton('adminhtml/session')->getServiceData()
@@ -152,6 +162,7 @@ class HC_PayByFinance_Block_Adminhtml_Paybyfinance_Service_Edit_Tab_Form
         } elseif ( Mage::registry('service_data') ) {
             $form->setValues(Mage::registry('service_data')->getData());
         }
+
         return parent::_prepareForm();
     }
 }

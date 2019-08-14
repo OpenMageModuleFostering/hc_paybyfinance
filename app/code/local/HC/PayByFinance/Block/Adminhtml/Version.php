@@ -28,7 +28,7 @@
  */
 class HC_PayByFinance_Block_Adminhtml_Version extends Mage_Adminhtml_Block_Template
 {
-    const PATCH_LEVEL = 3;
+    const PATCH_LEVEL = 0;
 
     protected $_template = "paybyfinance/version.phtml";
 

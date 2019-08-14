@@ -16,7 +16,7 @@
  */
 
 /**
- * Hitachi Post Simulation Model
+ * Hitachi Post TEst Model
  *
  * @category HC
  * @package  PayByFinance
@@ -24,9 +24,10 @@
  * @license  http://www.gnu.org/copyleft/gpl.html GPL License
  * @link     http://www.healthywebsites.co.uk/
  */
-class HC_PayByFinance_Model_Post_Simulation extends HC_PayByFinance_Model_Post_Abstract
+class HC_PayByFinance_Model_Post_Testrtl extends HC_PayByFinance_Model_Post_Abstract
 {
-    protected $_postUrl   = 'https://demo.creditmaster2.co.uk/Ecommerce/etailer/createQuote.action';
-    protected $_notifyUrl = 'https://demo.creditmaster2.co.uk/Ecommerce/etailer/notify.action';
-    protected $_mode      = 'simulation';
+    protected $_postUrl   =
+        'https://rtl-www.creditmaster2.co.uk/Ecommerce/etailer/createQuote.action';
+    protected $_notifyUrl = 'https://rtl-www.creditmaster2.co.uk/Ecommerce/etailer/notify.action';
+    protected $_mode      = 'test';
 }

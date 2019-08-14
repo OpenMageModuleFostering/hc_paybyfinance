@@ -129,6 +129,12 @@ class HC_PayByFinance_Adminhtml_Paybyfinance_ServiceController
         if ( $this->getRequest()->getPost() ) {
             try {
                 $postData = $this->getRequest()->getPost();
+
+                if ($postData['store_id'] == 0) {
+                    $storeId = null;
+                } else {
+                    $storeId = $postData['store_id'];
+                }
                 $serviceModel = Mage::getModel('paybyfinance/service');
 
                 $serviceModel->setId($this->getRequest()->getParam('id'))
@@ -143,6 +149,7 @@ class HC_PayByFinance_Adminhtml_Paybyfinance_ServiceController
                     ->setMinAmount($postData['min_amount'])
                     ->setMultiplier($postData['multiplier'])
                     ->setRpm($postData['rpm'])
+                    ->setStoreId($storeId)
                     ->save();
 
                 Mage::getSingleton('adminhtml/session')->addSuccess(

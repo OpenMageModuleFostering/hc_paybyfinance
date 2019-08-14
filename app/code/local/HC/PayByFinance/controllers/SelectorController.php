@@ -75,6 +75,7 @@ class HC_PayByFinance_SelectorController extends Mage_Core_Controller_Front_Acti
             $amount = $this->getAmount();
             $this->_services = Mage::getModel('paybyfinance/service')
                 ->getCollection()
+                ->storeFilter(Mage::app()->getStore()->getStoreId())
                 ->addPriceFilter($amount)
                 ->load();
         }

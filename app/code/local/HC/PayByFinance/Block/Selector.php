@@ -43,6 +43,7 @@ class HC_PayByFinance_Block_Selector extends Mage_Core_Block_Template
             $amount = $this->getAmount();
             $this->_services = Mage::getModel('paybyfinance/service')
                 ->getCollection()
+                ->storeFilter(Mage::app()->getStore()->getStoreId())
                 ->addPriceFilter($amount)
                 ->load();
         }
@@ -116,6 +117,10 @@ class HC_PayByFinance_Block_Selector extends Mage_Core_Block_Template
      */
     protected function _toHtml()
     {
+        $helper = Mage::helper('paybyfinance');
+        if (!$helper->isActive()) {
+            return '';
+        }
         if (!$this->getProduct() && $this->getServices()->getSize() == 0) {
             $this->setTemplate('paybyfinance/selector-no.phtml');
         }

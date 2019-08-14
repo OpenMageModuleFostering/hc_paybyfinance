@@ -170,6 +170,11 @@ $_secure = $this->getRequest()->isSecure();
 
     function pbf_selector_recalculate() {
         var value = $("pbf-input-deposit").value * 10;
+        if (pbf_selector_data.services.length == 0) {
+            $('pbf-error-msg').update("There's no finance available for this product.");
+            Form.Element.disable('pbf-productcart-btn');
+            return;
+        }
         var service_id = $$('#paybyfinance input:checked[name=service]')[0].value;
         var service = pbf_selector_data.services[service_id];
         var deposit = Math.round(((value / 100) * pbf_selector_data.amount) * 100) / 100;

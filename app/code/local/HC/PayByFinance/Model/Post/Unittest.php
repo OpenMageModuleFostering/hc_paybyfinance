@@ -26,7 +26,7 @@
  */
 class HC_PayByFinance_Model_Post_Unittest extends HC_PayByFinance_Model_Post_Abstract
 {
-    const POST_URL   = 'https://demo.creditmaster2.co.uk/Ecommerce/etailer/createQuote.action';
-    const NOTIFY_URL = 'https://demo.creditmaster2.co.uk/Ecommerce/etailer/notify.action';
-    const MODE       = 'unittest';
+    protected $_postUrl   = 'https://demo.creditmaster2.co.uk/Ecommerce/etailer/createQuote.action';
+    protected $_notifyUrl = 'https://demo.creditmaster2.co.uk/Ecommerce/etailer/notify.action';
+    protected $_mode      = 'unittest';
 }
