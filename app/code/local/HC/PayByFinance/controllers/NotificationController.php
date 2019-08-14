@@ -4,7 +4,7 @@
  *
  * Hitachi Capital Pay By Finance Extension
  *
- * PHP version >= 5.3.*
+ * PHP version >= 5.4.*
  *
  * @category  HC
  * @package   PayByFinance
@@ -28,8 +28,9 @@
  */
 class HC_PayByFinance_NotificationController extends Mage_Core_Controller_Front_Action
 {
+
     /**
-     * indexAction
+     * Index action
      *
      * @return void.
      */
@@ -39,7 +40,6 @@ class HC_PayByFinance_NotificationController extends Mage_Core_Controller_Front_
         $helper = Mage::helper('paybyfinance');
 
         if (!array_key_exists('supplierReference', $parameters)
-            || !is_numeric($parameters['supplierReference'])
             || !array_key_exists('status', $parameters)
             || !array_key_exists('applicationNumber', $parameters)
         ) {
@@ -47,17 +47,16 @@ class HC_PayByFinance_NotificationController extends Mage_Core_Controller_Front_
                 'Error in notification parameters: ' . $helper->arrayDump($parameters),
                 'notification'
             );
-            echo "0";
+            $this->returnStatus(false);
             die();
         }
 
         $orderId = $parameters['supplierReference'];
 
-        $order = Mage::getModel('sales/order')->load($orderId);
+        $order = Mage::getModel('sales/order')->load($orderId, 'increment_id');
         if (!$order->getId()) {
             $helper->log('Order does not exist: ' . $orderId, 'notification');
-            echo "0";
-            die();
+            $this->returnStatus(false);
         }
 
         $helper->log(
@@ -66,18 +65,42 @@ class HC_PayByFinance_NotificationController extends Mage_Core_Controller_Front_
         );
 
         $notificationHelper = Mage::helper('paybyfinance/notification');
-        $result = $notificationHelper->processOrder($order, $parameters);
+        try {
+            $result = $notificationHelper->processOrder($order, $parameters);
+        } catch (Exception $e) {
+            $helper->log(
+                $e->getMessage(),
+                'notification'
+            );
+        }
 
         if ($result) {
             $helper->log(
                 'Notification received successfully for order: ' . $orderId,
                 'notification'
             );
-            echo "1";
-            die(); // Success
+            $this->returnStatus(true); // Success.
         } else {
-            echo "0";
-            die(); // Error saving the order
+            $this->returnStatus(false); // Error saving the order.
+        }
+    }
+
+    /**
+     * Set return status
+     *
+     * @param bool $success Is success
+     *
+     * @return void
+     */
+    protected function returnStatus($success)
+    {
+        if ($success) {
+            echo '1';
+            die();
+        } else {
+            header("HTTP/1.0 503 Service unavailable");
+            echo '0';
+            die();
         }
     }
 }

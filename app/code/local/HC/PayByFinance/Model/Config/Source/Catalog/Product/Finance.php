@@ -4,7 +4,7 @@
  *
  * Hitachi Capital Pay By Finance Extension
  *
- * PHP version >= 5.3.*
+ * PHP version >= 5.4.*
  *
  * @category  HC
  * @package   PayByFinance
@@ -57,6 +57,49 @@ class HC_PayByFinance_Model_Config_Source_Catalog_Product_Finance
             );
         }
         return $this->_options;
+    }
+
+    /**
+     * Retrieve all options array
+     *
+     * @return array
+     */
+    public function toOptionArray()
+    {
+        return $this->getAllOptions();
+    }
+
+    /**
+     * Get flat column names
+     *
+     * @return array Additional names
+     */
+    public function getFlatColums()
+    {
+
+        $columns = array(
+            $this->getAttribute()->getAttributeCode() => array(
+                'type'      => 'int',
+                'unsigned'  => false,
+                'is_null'   => true,
+                'default'   => null,
+                'extra'     => null
+            )
+        );
+        return $columns;
+    }
+
+    /**
+     * Get select update for additional column
+     *
+     * @param integer $store Store
+     *
+     * @return Varien_Db_Select
+     */
+    public function getFlatUpdateSelect($store)
+    {
+        return Mage::getResourceModel('eav/entity_attribute')
+            ->getFlatUpdateSelect($this->getAttribute(), $store);
     }
 
 }

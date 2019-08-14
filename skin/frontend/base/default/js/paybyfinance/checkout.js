@@ -1,17 +1,20 @@
-document.observe('dom:loaded', function() {
-
+function pbfOnDOMLoad() {
     selector_data = window.pbf_selector_data;
     if (selector_data && selector_data.enabled) {
-        if(document.getElementById('onestepcheckout-form')) {
+        if (document.getElementById('onestepcheckout-form')) {
             //if we're using onestepcheckout
-            $('billing_address').insert({
-                top: '<p class="paybyfinance-info">If you are paying by finance then goods MUST be delivered to your billing address. Products can not be delivered outside the UK.</p>',
-            });
+            if ($('paybyfinance-info-p') == null) {
+                $('billing_address').insert({
+                    top: '<p id="paybyfinance-info-p" class="paybyfinance-info">If you are paying by finance then goods MUST be delivered to your billing address. Products can not be delivered outside the UK.</p>',
+                });
+            }
             hideCountries();
         } else {
-            $('co-billing-form').insert({
-                top: '<p class="paybyfinance-info">If you are paying by finance then goods MUST be delivered to your billing address. Products can not be delivered outside the UK.</p>',
-            });
+            if ($('paybyfinance-info-p') == null) {
+                $('co-billing-form').insert({
+                    top: '<p id="paybyfinance-info-p" class="paybyfinance-info">If you are paying by finance then goods MUST be delivered to your billing address. Products can not be delivered outside the UK.</p>',
+                });
+            }
             $('billing:use_for_shipping_yes').checked = true;
             $('billing:use_for_shipping_no').up().hide();
             $('billing:use_for_shipping_no').disabled = true;
@@ -20,12 +23,12 @@ document.observe('dom:loaded', function() {
             $('checkout-step-shipping').insert({
                 top: '<p class="paybyfinance-info-shipping">It is not possible to select a different shipping address when the order is being paid by finance.</p>'
             });
-            if($('shipping-address-select') != null) {
-                $('shipping-address-select').observe('change', function() {
+            if ($('shipping-address-select') != null) {
+                $('shipping-address-select').observe('change', function () {
                     alert('If you are paying by finance then goods MUST be delivered to your billing address. Products can not be delivered outside the UK.');
                 });
             }
-            $('billing:country_id').observe('focus', function() {
+            $('billing:country_id').observe('focus', function () {
                 var inputs = this.form.getElements();
                 var idx = inputs.indexOf(this);
                 inputs[idx + 1].focus(); // handles submit buttons
@@ -33,7 +36,17 @@ document.observe('dom:loaded', function() {
             });
         }
     }
+}
+document.observe('dom:loaded', function() {
+    pbfOnDOMLoad();
 });
+
+function clearInputsInBilling(){
+    var inputs = $('co-billing-form').getElementsByTagName("input");
+    for (var i = 0; i < inputs.length; i++) {
+        inputs[i].value = '';
+    }
+}
 
 function hideCountries() {
     $('billing:country_id').value = 'GB';

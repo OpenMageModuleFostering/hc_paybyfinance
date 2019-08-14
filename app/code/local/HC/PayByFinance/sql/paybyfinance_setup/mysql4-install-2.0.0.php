@@ -4,7 +4,7 @@
  *
  * Hitachi Capital Pay By Finance Extension
  *
- * PHP version >= 5.3.*
+ * PHP version >= 5.4.*
  *
  * @category  HC
  * @package   PayByFinance
@@ -41,7 +41,7 @@ ALTER TABLE {$setup->getTable('sales_flat_quote_address')} ADD COLUMN finance_se
 ALTER TABLE {$setup->getTable('sales_flat_order')} ADD COLUMN finance_service int(11);
 ALTER TABLE {$setup->getTable('sales_flat_invoice')} ADD COLUMN finance_service int(11);
 
-ALTER TABLE {$setup->getTable('sales_flat_order')} ADD COLUMN finance_status varchar(1);
+ALTER TABLE {$setup->getTable('sales_flat_order')} ADD COLUMN finance_status varchar(24);
 ALTER TABLE {$setup->getTable('sales_flat_order')} ADD COLUMN finance_application_no varchar(50);
     "
 );
@@ -78,7 +78,7 @@ CREATE TABLE {$this->getTable('paybyfinance_log')} (
   `type` varchar(255) NOT NULL default '',
   `flow` varchar(255) NOT NULL default '',
   `time` varchar(255) NOT NULL default '',
-  `content` text NOT NULL default '',
+  `content` text NOT NULL,
   PRIMARY KEY (`api_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
     "
@@ -174,7 +174,9 @@ foreach ($statuses as $key => $value) {
 }
 
 $setup->addAttribute(
-    'catalog_product', 'paybyfinance_enable', array(
+    'catalog_product',
+    'paybyfinance_enable',
+    array(
         'group'       => 'Hitachi Capital - Pay By Finance',
         'type'        => 'int',
         'backend'     => '',
@@ -234,7 +236,7 @@ foreach ($entities as $entity) {
 $content = file_get_contents(
     'app/code/local/HC/PayByFinance/sql/paybyfinance_setup/html/page-finance-options.html'
 );
-$cmsPage = Array (
+$cmsPage = array (
     'title' => 'Finance Options',
     'root_template' => 'one_column',
     'identifier' => 'finance-options',

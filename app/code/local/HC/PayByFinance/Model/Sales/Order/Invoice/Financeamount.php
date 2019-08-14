@@ -4,7 +4,7 @@
  *
  * Hitachi Capital Pay By Finance Extension
  *
- * PHP version >= 5.3.*
+ * PHP version >= 5.4.*
  *
  * @category  HC
  * @package   PayByFinance
@@ -38,6 +38,7 @@ class HC_PayByFinance_Model_Sales_Order_Invoice_Financeamount
      */
     public function collect(Mage_Sales_Model_Order_Invoice $invoice)
     {
+        $helper = Mage::helper('paybyfinance');
         $order = $invoice->getOrder();
         $amount = $order->getFinanceAmount();
         if ($amount == 0) {
@@ -46,7 +47,9 @@ class HC_PayByFinance_Model_Sales_Order_Invoice_Financeamount
 
         // Previous invoices.
         foreach ($order->getInvoiceCollection() as $previusInvoice) {
-            if ((float) $previusInvoice->getHcfinanced() != 0 && !$previusInvoice->isCanceled()) {
+            if ((float) $previusInvoice->getHcfinanced() != 0
+                && !$previusInvoice->isCanceled()
+            ) {
                 return $this;
             }
         }
@@ -54,12 +57,14 @@ class HC_PayByFinance_Model_Sales_Order_Invoice_Financeamount
         $invoice->setFinanceAmount($amount);
         $invoice->setBaseFinanceAmount($order->getBaseFinanceAmount());
 
-        $invoice->setGrandTotal(
-            $invoice->getGrandTotal() - abs($invoice->getFinanceAmount())
-        );
-        $invoice->setBaseGrandTotal(
-            $invoice->getBaseGrandTotal() - abs($invoice->getBaseFinanceAmount())
-        );
+        if (Mage::getStoreConfig($helper::XML_PATH_INVOICE_FINANCE)) {
+            $invoice->setGrandTotal(
+                $invoice->getGrandTotal() - abs($invoice->getFinanceAmount())
+            );
+            $invoice->setBaseGrandTotal(
+                $invoice->getBaseGrandTotal() - abs($invoice->getBaseFinanceAmount())
+            );
+        }
 
         return $this;
     }

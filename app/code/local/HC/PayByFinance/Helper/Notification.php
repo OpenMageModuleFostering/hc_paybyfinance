@@ -4,7 +4,7 @@
  *
  * Hitachi Capital Pay By Finance Extension
  *
- * PHP version >= 5.3.*
+ * PHP version >= 5.4.*
  *
  * @category  HC
  * @package   PayByFinance
@@ -75,6 +75,8 @@ class HC_PayByFinance_Helper_Notification extends Mage_Core_Helper_Data
      * @param array                  $parameters Array of parameters
      *
      * @return boolean true if success, false on error
+     *
+     * @throws Exception when notification received too early for order
      */
     public function processOrder($order, $parameters)
     {
@@ -94,21 +96,142 @@ class HC_PayByFinance_Helper_Notification extends Mage_Core_Helper_Data
             $orderState = $orderStatus = Mage_Sales_Model_Order::STATE_CANCELED;
         }
 
+        if ($status == 'ACCEPT' || $status == 'CONDITIONAL_ACCEPT') {
+            if (array_key_exists('goodsDispatched', $parameters)
+                && $parameters['goodsDispatched'] == 'N'
+            ) {
+                $message .= ' Awaiting dispatch of goods (WET). authorisationNumber: '
+                    . $parameters['authorisationNumber'];
+                $this->addTotals($order);
+            } elseif (array_key_exists('esignatureStatus', $parameters)
+                && array_key_exists('goodsDispatched', $parameters)
+                && $parameters['esignatureStatus'] == 'COMPLETED - E-signature was completed'
+                && $parameters['goodsDispatched'] == ''
+            ) {
+                $message .= ' Awaiting dispatch of goods (eSignature). authorisationNumber: '
+                    . $parameters['authorisationNumber'];
+                $this->addTotals($order);
+            }
+        }
+
+        if (isset($parameters['esignatureStatus']) && $parameters['esignatureStatus']) {
+            $message .= ' esignatureStatus: ' . $parameters['esignatureStatus'] . '. ';
+        }
+        if (isset($parameters['goodsDispatched']) && $parameters['goodsDispatched']) {
+            $message .= ' goodsDispatched: ' . $parameters['goodsDispatched'] . '. ';
+        }
+
+        $message = "<strong>Hitachi Capital Pay By Finance"
+            . "</strong> notification received: " . $status . ': ' . $message;
+
+        list($orderState, $orderStatus) = $this->getOrderStateAndStatus($parameters);
+
+        $this->financeStatusChange($status, $order, $orderStatus, $orderState);
+        $order
+            ->setFinanceApplicationNo($applicationNo)
+            ->addStatusHistoryComment($message, false);
+        return $order->save();
+    }
+
+    /**
+     * Add totals to the order
+     *
+     * @param Mage_Sales_Model_Order $order Order object
+     *
+     * @return void
+     *
+     * @throws Exception when notification received too early for order
+     */
+    protected function addTotals($order)
+    {
+        if (!$order->getPaybyfinanceEnable()) {
+            throw new Exception('Notification received too early for order: ' . $order->getId(), 1);
+        }
+        $finance = new Varien_Object();
+        $finance->setUpdateTotals(true);
+        Mage::dispatchEvent(
+            'paybyfinance_totals_notification_update',
+            array('order' => $order, 'finance' => $finance)
+        );
+        if ($order->getFinanceTotalAdded() != 1) {
+            if ($finance->getUpdateTotals()) {
+                $order->setGrandTotal(
+                    $order->getGrandTotal() + abs($order->getFinanceAmount())
+                );
+                $order->setBaseGrandTotal(
+                    $order->getBaseGrandTotal() + abs($order->getFinanceAmount())
+                );
+            }
+            $order->setFinanceTotalAdded(1);
+        }
+    }
+
+    /**
+     * Change finance order status, but only when status changed in the request
+     *
+     * @param string                 $status      Finance status
+     * @param Mage_Sales_Model_Order $order       Order
+     * @param String                 $orderStatus Order status
+     * @param String                 $orderState  Order state
+     *
+     * @return bool True if the status was changed
+     */
+    protected function financeStatusChange($status, $order, $orderStatus, $orderState)
+    {
+        $disallowChange = array(
+            Mage_Sales_Model_Order::STATE_COMPLETE,
+            Mage_Sales_Model_Order::STATE_CLOSED,
+            Mage_Sales_Model_Order::STATE_CANCELED,
+            Mage_Sales_Model_Order::STATE_PROCESSING
+        );
+        $origStatus = $order->getFinanceStatus();
+        if ($origStatus == 'ACCEPTED') {
+            $origStatus = 'ACCEPT';
+        }
+
+        if ($status == 'ACCEPT' && !in_array($order->getStatus(), $disallowChange)) {
+            $order->setState($orderState, $orderStatus);
+        }
+        if ($origStatus != $status) {
+            $order->setFinanceStatus($status);
+            $order->setState($orderState, $orderStatus);
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Calculate order state and status based on notification parameters
+     *
+     * @param array $parameters request parameters
+     *
+     * @return array Array of state and status
+     */
+    protected function getOrderStateAndStatus($parameters)
+    {
+        $helper = Mage::helper('paybyfinance');
+        $status = strtoupper($parameters['status']);
+
+        $orderState = $orderStatus = '';
+
+        if (in_array($status, $this->cancelStatus)) {
+            $orderState = $orderStatus = Mage_Sales_Model_Order::STATE_CANCELED;
+        }
+
         switch ($status) {
             case 'ACCEPT':
             case 'CONDITIONAL_ACCEPT':
                 if (array_key_exists('goodsDispatched', $parameters)
                     && $parameters['goodsDispatched'] == 'N'
                 ) {
-                    $message .= ' Awaiting dispatch of goods. authorisationNumber: '
-                        . $parameters['authorisationNumber'];
                     $orderState = $orderStatus = Mage_Sales_Model_Order::STATE_PROCESSING;
-                    $order->setTotalPaid(
-                        $order->getTotalPaid() + abs($order->getFinanceAmount())
-                    );
-                    $order->setBaseTotalPaid(
-                        $order->getBaseTotalPaid() + abs($order->getFinanceAmount())
-                    );
+                } elseif (array_key_exists('esignatureStatus', $parameters)
+                    && array_key_exists('goodsDispatched', $parameters)
+                    && $parameters['esignatureStatus'] == 'COMPLETED - E-signature was completed'
+                    && $parameters['goodsDispatched'] == ''
+                ) {
+                    $orderState = $orderStatus = Mage_Sales_Model_Order::STATE_PROCESSING;
                 } else {
                     $orderStatus = Mage::getStoreConfig($helper::XML_PATH_STATUS_ACCEPTED);
                 }
@@ -124,13 +247,6 @@ class HC_PayByFinance_Helper_Notification extends Mage_Core_Helper_Data
                 break;
         }
 
-        $message = "<strong>Hitachi Capital Pay By Finance"
-            . "</strong> notification received: " . $status . ': ' . $message;
-        $order->setFinanceStatus($status)
-            ->setFinanceApplicationNo($applicationNo)
-            ->setState($orderState, $orderStatus)
-            ->addStatusToHistory($orderStatus, $message, false);
-        return $order->save();
+        return array($orderState, $orderStatus);
     }
-
 }

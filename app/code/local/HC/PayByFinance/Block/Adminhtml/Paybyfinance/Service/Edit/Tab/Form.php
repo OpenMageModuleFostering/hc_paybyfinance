@@ -4,7 +4,7 @@
  *
  * Hitachi Capital Pay By Finance Extension
  *
- * PHP version >= 5.3.*
+ * PHP version >= 5.4.*
  *
  * @category  HC
  * @package   PayByFinance
@@ -154,12 +154,12 @@ class HC_PayByFinance_Block_Adminhtml_Paybyfinance_Service_Edit_Tab_Form
             )
         );
 
-        if ( Mage::getSingleton('adminhtml/session')->getServiceData() ) {
+        if (Mage::getSingleton('adminhtml/session')->getServiceData()) {
             $form->setValues(
                 Mage::getSingleton('adminhtml/session')->getServiceData()
             );
             Mage::getSingleton('adminhtml/session')->setServiceData(null);
-        } elseif ( Mage::registry('service_data') ) {
+        } elseif (Mage::registry('service_data')) {
             $form->setValues(Mage::registry('service_data')->getData());
         }
 

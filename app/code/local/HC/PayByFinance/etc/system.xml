@@ -106,6 +106,26 @@
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
                         </wizard>
+                        <display_in_results>
+                            <label>Display Finance offer on category/search pages</label>
+                            <comment>If enabled you will require a representative example for compliance sign off, ask your account manager</comment>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>9</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </display_in_results>
+                        <invoice_finance>
+                            <label>Add finance amount to grand total in invoice</label>
+                            <comment>If your payment gateway is using capture and you set to yes when the invoice is created the payment gateway will capture the full amount rather than the grand total amount.</comment>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>10</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </invoice_finance>
                     </fields>
                 </general>
                 <order_status>

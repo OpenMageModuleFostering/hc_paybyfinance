@@ -4,7 +4,7 @@
  *
  * Hitachi Capital Pay By Finance Extension
  *
- * PHP version >= 5.3.*
+ * PHP version >= 5.4.*
  *
  * @category  HC
  * @package   PayByFinance
@@ -67,22 +67,48 @@ class HC_PayByFinance_Helper_Checkout extends Mage_Core_Helper_Data
                 throw new Exception("Invalid decision code", 1);
         }
 
-
-        $message .= 'id: ' . $parameters['id'];
-        $message .= ' id2: ' . $parameters['id2'];
-        $message .= "\n" . $parameters['decision'];
+        $message = $this->getParamText('id', 'id', $parameters);
+        $message .= $this->getParamText('id2', 'id2', $parameters);
+        $message .= "\nFinance: " . $parameters['decision'];
         $message .= "\nApplication: " . $parameters['applicationNo'];
         $message .= "\nAuthorization: " . $parameters['authorisationcode'];
         $message .= "\nSURL: " . $parameters['sourceurl'];
-        $message .= "\nReason: " . $parameters['Errreason'];
-        $message .= "\nMessage: " . $parameters['Errtext'];
+        $message .= $this->getParamText('Errreason', 'Reason', $parameters);
+        $message .= $this->getParamText('Errtext', 'Message', $parameters);
 
         $state = Mage_Sales_Model_Order::STATE_PROCESSING;
-        $order->setState($state, $status);
-        $order->addStatusToHistory($status, nl2br(trim($message)), false);
+        $financeStatus = $order->getFinanceStatus();
+        if ($financeStatus == 'ACCEPT') {
+            $financeStatus = 'ACCEPTED';
+        }
+        if ($parameters['decision'] != $financeStatus // Don't change status if not modified.
+            && !$order->getPaybyfinanceEnable() // Don't change status on second return.
+        ) {
+            $order->setState($state, $status);
+            $order->setFinanceStatus($parameters['decision']);
+        }
+        $order->addStatusHistoryComment(nl2br(trim($message), false));
+        $order->setPaybyfinanceEnable(true);
         $order->save();
 
         return $redirectUrl;
+    }
+
+    /**
+     * Get parmeter by it's id with text and semicolon.
+     *
+     * @param string $id         Id
+     * @param string $text       text
+     * @param array  $parameters Parameters array
+     *
+     * @return string String representation
+     */
+    protected function getParamText($id, $text, $parameters)
+    {
+        if (isset($parameters[$id]) && $parameters[$id]) {
+            return "\n" . $text . ': ' . $parameters[$id];
+        }
+
     }
 
     /**
@@ -99,7 +125,7 @@ class HC_PayByFinance_Helper_Checkout extends Mage_Core_Helper_Data
     {
         $helper = Mage::helper('paybyfinance');
         $status = Mage::getStoreConfig($helper::XML_PATH_STATUS_ABANDONED);
-        $message .= 'id: ' . $parameters['id'];
+        $message = 'id: ' . $parameters['id'];
         $message .= ' id2: ' . $parameters['id2'];
         $message .= "\n" . $parameters['decision'];
         $message .= "\nApplication: " . $parameters['applicationNo'];

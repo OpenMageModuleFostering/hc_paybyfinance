@@ -72,6 +72,7 @@ $_secure = $this->getRequest()->isSecure();
 
 
         <table class="services">
+            <?php $checked = false; ?>
             <?php foreach ($_services as $_service): ?>
                 <tr>
                     <td>
@@ -132,6 +133,7 @@ $_secure = $this->getRequest()->isSecure();
             </table>
         </div>
         <div class="pbf-footnote">
+            <p>Total Amount Payable Includes Deposit Amount.</p>
             <p>The figures shown are an illustration based on the cost of goods. Final details including shipping and discounts where applicable will be displayed on the checkout page.</p>
             <p>Credit is provided by Hitachi Capital Consumer Finance, a division of Hitachi Capital (UK) PLC authorised and regulated by the Financial Conduct Authority.</p>
             <p><?php echo $this->getRetailerName(); ?> <?php echo $this->getTradingName(); ?> acts as a credit broker and is authorised and regulated by the Financial Conduct Authority.</p>
@@ -207,6 +209,7 @@ $_secure = $this->getRequest()->isSecure();
         if (value < service.deposit) {
             $('pbf-error-msg').update("The minimum deposit value is "+parseInt(service.deposit)+"%");
             $('pbf-error').setStyle({height: 45+"px", opacity: 0.99});
+            $('pbf-error-msg').show();
             if ($('pbf-productcart-btn')) {
                 Form.Element.disable('pbf-productcart-btn');
             }
@@ -216,6 +219,7 @@ $_secure = $this->getRequest()->isSecure();
         } else if(credit < service.min_amount) {
             $('pbf-error-msg').update("The minimum Finance Amount is £"+ currencyFormat(service.min_amount));
             $('pbf-error').setStyle({height: 45+"px", opacity: 0.99});
+            $('pbf-error-msg').show();
             if ($('pbf-productcart-btn')) {
                 Form.Element.disable('pbf-productcart-btn');
             }
@@ -225,6 +229,7 @@ $_secure = $this->getRequest()->isSecure();
         } else {
             $('pbf-error-msg').update(null);
             $('pbf-error').setStyle({height: 0, opacity: 0});
+            $('pbf-error-msg').hide();
             if ($('pbf-productcart-btn')) {
                 Form.Element.enable('pbf-productcart-btn');
             }
@@ -357,6 +362,15 @@ $_secure = $this->getRequest()->isSecure();
                     Form.Element.enable('pbf-cart-btn');
                 } else if (document.getElementById('checkoutSteps')) {
                     // OnePage checkout (Magento's default)
+
+                    if (enabled && $('billing:use_for_shipping_no').checked === true) {
+                        pbf_selector_data.enabled = true;
+                        checkout.gotoSection('billing');
+                        pbfOnDOMLoad();
+                        clearInputsInBilling();
+                        return false; // Have to return, because calling shipping.save() will produce checkout on AJAX response handler next() called and checkout will move to next step of accordion,leaving desired billing step
+                    }
+
                     Form.Element.disable('pbf-cart-btn');
                     steppable = ["shipping_method", "payment", "review"]
                     var i = steppable.length;

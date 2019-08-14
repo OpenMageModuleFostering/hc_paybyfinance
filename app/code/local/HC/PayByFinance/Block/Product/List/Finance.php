@@ -4,7 +4,7 @@
  *
  * Hitachi Capital Pay By Finance Extension
  *
- * PHP version >= 5.3.*
+ * PHP version >= 5.4.*
  *
  * @category  HC
  * @package   PayByFinance
@@ -28,6 +28,7 @@
  */
 class HC_PayByFinance_Block_Product_List_Finance extends Mage_Core_Block_Template
 {
+    private $_canDisplayFinance = null;
 
     /**
      * Current product has finance?
@@ -54,5 +55,22 @@ class HC_PayByFinance_Block_Product_List_Finance extends Mage_Core_Block_Templat
         $price = Mage::helper('core')->currency($finaceFromPrice, true, false);
 
         return $price;
+    }
+
+    /**
+     * Whether to display finance text under product in search result and category or not
+     *
+     * @return boolean
+     */
+    public function canDisplayFinance()
+    {
+        if ($this->_canDisplayFinance === null) {
+            $helper = Mage::helper('paybyfinance');
+            $this->_canDisplayFinance = (Mage::getStoreConfig(
+                $helper::XML_PATH_IN_BLOCK_DISPLAY
+            ) == 1);
+        }
+
+        return $this->_canDisplayFinance;
     }
 }

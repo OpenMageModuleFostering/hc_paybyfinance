@@ -4,7 +4,7 @@
  *
  * Hitachi Capital Pay By Finance Extension
  *
- * PHP version >= 5.3.*
+ * PHP version >= 5.4.*
  *
  * @category  HC
  * @package   PayByFinance
@@ -27,8 +27,9 @@
  * @link     http://www.healthywebsites.co.uk/
  */
 class HC_PayByFinance_Block_Adminhtml_Version extends Mage_Adminhtml_Block_Template
+    implements Varien_Data_Form_Element_Renderer_Interface
 {
-    const PATCH_LEVEL = 0;
+    const PATCH_LEVEL = 1;
 
     protected $_template = "paybyfinance/version.phtml";
 
@@ -53,6 +54,11 @@ class HC_PayByFinance_Block_Adminhtml_Version extends Mage_Adminhtml_Block_Templ
     {
         $ver = Mage::getConfig()->getNode('modules/HC_PayByFinance/version');
         $ver .= '.'.self::PATCH_LEVEL;
+        $buildFile = __DIR__.DS.'..'.DS.'..'.DS.'..'.DS.'build.ini';
+        if (file_exists($buildFile)) {
+            $ini = parse_ini_file($buildFile, true);
+            $ver .= ' build: '.$ini['HC_PayByFinance']['build'];
+        }
         return $ver;
     }
 

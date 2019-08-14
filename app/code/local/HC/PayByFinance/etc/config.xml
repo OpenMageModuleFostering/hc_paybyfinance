@@ -2,7 +2,7 @@
 <config>
     <modules>
         <HC_PayByFinance>
-            <version>1.0.6</version>
+            <version>2.0.0</version>
         </HC_PayByFinance>
     </modules>
     <global>
@@ -202,6 +202,24 @@
                     </hc_paypalpreparelineitemsObserver>
                 </observers>
             </paypal_prepare_line_items>
+            <paybyfinance_status_controller_accepted>
+                <observers>
+                    <paybyfinance_status_accepted>
+                        <type>singleton</type>
+                        <class>paybyfinance/observer</class>
+                        <method>googleAnalyticsSetOrderId</method>
+                    </paybyfinance_status_accepted>
+                </observers>
+            </paybyfinance_status_controller_accepted>
+            <paybyfinance_status_controller_referred>
+                <observers>
+                    <paybyfinance_status_referred>
+                        <type>singleton</type>
+                        <class>paybyfinance/observer</class>
+                        <method>googleAnalyticsSetOrderId</method>
+                    </paybyfinance_status_referred>
+                </observers>
+            </paybyfinance_status_controller_referred>
         </events>
 
     </global>
@@ -280,6 +298,8 @@
                 <include_shipping>1</include_shipping>
                 <address_checked>0</address_checked>
                 <wizard>0</wizard>
+                <display_in_results>0</display_in_results>
+                <invoice_finance>0</invoice_finance>
             </general>
             <order_status>
                 <accepted>finance_accepted</accepted>
@@ -293,8 +313,8 @@
             </blocks_info>
             <account>
                 <connectionmode>test</connectionmode>
-                <connection_post>https://demo.creditmaster2.co.uk/Ecommerce/etailer/createQuote.action</connection_post>
-                <connection_notify>https://demo.creditmaster2.co.uk/Ecommerce/etailer/notify.action</connection_notify>
+                <connection_post></connection_post>
+                <connection_notify></connection_notify>
                 <id1></id1>
                 <id2></id2>
                 <erroremail></erroremail>

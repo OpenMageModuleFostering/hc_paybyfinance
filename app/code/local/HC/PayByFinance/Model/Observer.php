@@ -4,7 +4,7 @@
  *
  * Hitachi Capital Pay By Finance Extension
  *
- * PHP version >= 5.3.*
+ * PHP version >= 5.4.*
  *
  * @category  HC
  * @package   PayByFinance
@@ -81,13 +81,21 @@ class HC_PayByFinance_Model_Observer
 
         $amt = $finance->getFinanceAmount() * -1;
         if ($amt) {
+            $finance->setUpdateTotals(true);
+            // Use $finance->setUpdateTotals(false) to avoid Total Due to change
+            Mage::dispatchEvent(
+                'paybyfinance_totals_pre_update',
+                array('order' => $order, 'address' => $address, 'finance' => $finance)
+            );
             $order->setFinanceAmount($amt)
                 ->setBaseFinanceAmount($amt)
                 ->setFinanceService($serviceId)
                 ->setFinanceDeposit($deposit)
-                ->setBaseTotalDue($order->getBaseGrandTotal())
-                ->setTotalDue($order->getGrandTotal())
                 ->setFromQuote(true);
+            if ($finance->getUpdateTotals()) {
+                $order->setBaseTotalDue($order->getBaseGrandTotal())
+                    ->setTotalDue($order->getGrandTotal());
+            }
         }
     }
 
@@ -188,7 +196,7 @@ class HC_PayByFinance_Model_Observer
         $post->setNotificationData($data);
         $response = $post->post();
         $helper->log(
-            'Inbound notification for order: ' . $order->getId() . "\n"
+            'Inbound notification for order: ' . $order->getIncrementId() . "\n"
             . $helper->arrayDump($post->getPostAdapter()->getPostData()) . "\n"
             . 'Response: ' . $response,
             'post'
@@ -306,11 +314,44 @@ class HC_PayByFinance_Model_Observer
             }
             if ($helper->isProductEligible($product)) {
                 $product->setData('has_finance', true);
-                $minInstallment = $calculator->getLowestMonthlyInstallment($product->getPrice());
+                $price = Mage::helper('tax')->getPrice($product, $product->getFinalPrice(), true);
+                $minInstallment = $calculator->getLowestMonthlyInstallment($price);
                 $product->setData('finance_from_price', $minInstallment);
             }
         }
         Varien_Profiler::stop('hc_paybyfinance_collection_load_after');
+    }
+
+    /**
+     * Set Analyitics Order ID.
+     *
+     * @param Varien_Event_Observer $observer Observer
+     *
+     * @return void
+     */
+    public function googleAnalyticsSetOrderId(Varien_Event_Observer $observer)
+    {
+        if (Mage::getSingleton('paybyfinance/session')->getData('analytics_sent')) {
+            return;
+        }
+        $order = Mage::getModel('sales/order')->load(
+            Mage::getSingleton('paybyfinance/session')->getData('order_id')
+        );
+        $lastOrderId = $order->getId();
+        if (!is_numeric($lastOrderId)) {
+            return;
+        }
+
+        $block = Mage::app()
+            ->getFrontController()
+            ->getAction()
+            ->getLayout()
+            ->getBlock('google_analytics');
+
+        if ($block) {
+            $block->setOrderIds(array($lastOrderId));
+            Mage::getSingleton('paybyfinance/session')->setData('analytics_sent', true);
+        }
     }
 
 }

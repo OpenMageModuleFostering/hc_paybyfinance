@@ -4,7 +4,7 @@
  *
  * Hitachi Capital Pay By Finance Extension
  *
- * PHP version >= 5.3.*
+ * PHP version >= 5.4.*
  *
  * @category  HC
  * @package   PayByFinance
@@ -61,11 +61,21 @@ class HC_PayByFinance_Block_Selector extends Mage_Core_Block_Template
         if (!isset($this->_amount)) {
             if ($product = Mage::registry('current_product')) {
                 // We are on the product page
-                $this->_amount = $product->getFinalPrice();
+                $this->_amount = Mage::helper('tax')->getPrice(
+                    $product,
+                    $product->getFinalPrice(),
+                    true
+                );
             } else {
                 $cartHelper = Mage::helper('paybyfinance/cart');
                 $this->_amount = $cartHelper->getEligibleAmount()
                     + $cartHelper->getQuoteAdditionalAmount();
+
+                $calculator = Mage::getSingleton('paybyfinance/calculator');
+                $minInstallment = $calculator->getLowestMonthlyInstallment($this->_amount);
+                if (!$minInstallment) {
+                    return false;
+                }
             }
         }
 

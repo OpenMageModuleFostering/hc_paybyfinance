@@ -4,7 +4,7 @@
  *
  * Hitachi Capital Pay By Finance Extension
  *
- * PHP version >= 5.3.*
+ * PHP version >= 5.4.*
  *
  * @category  HC
  * @package   PayByFinance
@@ -36,6 +36,8 @@ class HC_PayByFinance_Helper_Data extends Mage_Core_Helper_Data
     const XML_PATH_INCLUDE_SHIPPING      = 'hc_paybyfinance/general/include_shipping';
     const XML_PATH_ADDRESS_CHECKED       = 'hc_paybyfinance/general/address_checked';
     const XML_PATH_WIZARD                = 'hc_paybyfinance/general/wizard';
+    const XML_PATH_IN_BLOCK_DISPLAY      = 'hc_paybyfinance/general/display_in_results';
+    const XML_PATH_INVOICE_FINANCE       = 'hc_paybyfinance/general/invoice_finance';
     const XML_PATH_STATUS_ACCEPTED       = 'hc_paybyfinance/order_status/accepted';
     const XML_PATH_STATUS_REFERRED       = 'hc_paybyfinance/order_status/referred';
     const XML_PATH_STATUS_DECLINED       = 'hc_paybyfinance/order_status/declined';
@@ -58,6 +60,10 @@ class HC_PayByFinance_Helper_Data extends Mage_Core_Helper_Data
     const ERROR_LOG_PATH_LOG             = 'paybyfinance/paybyfinance-log.log';
     const ERROR_LOG_PATH_POST            = 'paybyfinance/paybyfinance-post.log';
     const ERROR_LOG_PATH_NOTIFICATION    = 'paybyfinance/paybyfinance-notification.log';
+    const REGEXP_PRODUCT_NAME            = '/[^a-zA-Z0-9\s@\.\-\(\)\+:\/\?\']/';
+    const REGEXP_NAME                    = '/[^a-zA-Z\s]/';
+    const REGEXP_TITLE                   = '/[^a-zA-Z\s\.]/';
+    const REGEXP_STREET                  = '/[^a-zA-Z0-9\s\.\-\/]/';
 
     private $_types;
 
@@ -155,14 +161,14 @@ class HC_PayByFinance_Helper_Data extends Mage_Core_Helper_Data
     {
         $options = Mage::getSingleton('paybyfinance/config_source_catalog_product_finance');
 
-        if (   $item instanceof Mage_Sales_Model_Quote_Item
+        if ($item instanceof Mage_Sales_Model_Quote_Item
             || $item instanceof Mage_Sales_Model_Order_Item
         ) {
             $product = $item->getProduct();
-            $price = $item->getPrice();
+            $price = $item->getRowTotalInclTax();
         } elseif ($item instanceof Mage_Catalog_Model_Product) {
             $product = $item;
-            $price = $product->getFinalPrice();
+            $price = Mage::helper('tax')->getPrice($product, $product->getFinalPrice(), true);
         }
 
         if ($product->getPaybyfinanceEnable() == $options::VALUES_DISABLE) {
@@ -171,19 +177,21 @@ class HC_PayByFinance_Helper_Data extends Mage_Core_Helper_Data
             return true;
         }
 
-        $helper = Mage::helper('paybyfinance');
-        $types = explode(',', Mage::getStoreConfig($helper::XML_PATH_PRODUCTTYPES));
+        $types = explode(',', Mage::getStoreConfig(self::XML_PATH_PRODUCTTYPES));
         if (!in_array($product->getTypeID(), $types)) {
             return false;
         }
-        $minPriceProduct = Mage::getStoreConfig($helper::XML_PATH_MINIMUM_PRICE_PRODUCT);
-        if ($price < $minPriceProduct) {
+        $minPriceProduct = Mage::getStoreConfig(self::XML_PATH_MINIMUM_PRICE_PRODUCT);
+        if ($product->getPrice() < $minPriceProduct) {
             return false;
         }
-        $calculator = Mage::getSingleton('paybyfinance/calculator');
-        $minInstallment = $calculator->getLowestMonthlyInstallment($product->getPrice());
-        if (!$minInstallment) {
-            return false;
+
+        if ($item instanceof Mage_Catalog_Model_Product) {
+            $calculator = Mage::getSingleton('paybyfinance/calculator');
+            $minInstallment = $calculator->getLowestMonthlyInstallment($price);
+            if (!$minInstallment) {
+                return false;
+            }
         }
 
         return true;
@@ -233,7 +241,7 @@ class HC_PayByFinance_Helper_Data extends Mage_Core_Helper_Data
      *
      * @return integer Id of the saved log.
      */
-    public function logDB($data, $type ='log')
+    public function logDB($data, $type = 'log')
     {
 
         if (!is_null($data)) {
@@ -304,8 +312,66 @@ class HC_PayByFinance_Helper_Data extends Mage_Core_Helper_Data
      */
     public function sanitizeProductName($productName)
     {
-        $cleanedName = preg_replace('/[^a-zA-Z0-9\s@\.\-\(\)\+:\/\?\']/', '', $productName);
-        return $cleanedName;
+        return $this->toAscii($productName, self::REGEXP_PRODUCT_NAME);
+    }
+
+    /**
+     * Converts string from non-ascii to ascii characters
+     *
+     * @param string $string        to be converted to ascii representation
+     * @param string $regexToRemove regular expression of chars to be removed
+     *
+     * @return string. If no intl module present, returns $string
+     */
+    private function toAscii($string, $regexToRemove)
+    {
+        if (class_exists("Transliterator")) {
+            $string = transliterator_transliterate(
+                'Any-Latin; Latin-ASCII',
+                $string
+            );
+        }
+
+        return preg_replace($regexToRemove, '', $string);
+    }
+
+    /**
+     * Sanitize objects name
+     * Allow chars: A-Z a-z
+     *
+     * @param string $string for transliterate and sanitize
+     *
+     * @return string Cleaned string
+     */
+    public function sanitizeName($string)
+    {
+        return $this->toAscii($string, self::REGEXP_NAME);
+    }
+
+    /**
+     * Sanitize title before name
+     * Allow chars: A-Z a-z .
+     *
+     * @param string $string for transliterate and sanitize
+     *
+     * @return string Cleaned string
+     */
+    public function sanitizeTitle($string)
+    {
+        return $this->toAscii($string, self::REGEXP_TITLE);
+    }
+
+    /**
+     * Sanitize street name
+     * Allow chars: a-z A-Z 0-9 . - /
+     *
+     * @param string $string for transliterate and sanitize
+     *
+     * @return string Cleaned string
+     */
+    public function sanitizeStreet($string)
+    {
+        return $this->toAscii($string, self::REGEXP_STREET);
     }
 
     /**

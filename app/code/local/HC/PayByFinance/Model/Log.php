@@ -4,7 +4,7 @@
  *
  * Hitachi Capital Pay By Finance Extension f6f5b81
  *
- * PHP version >= 5.3.*
+ * PHP version >= 5.4.*
  *
  * @category  HC
  * @package   PayByFinance

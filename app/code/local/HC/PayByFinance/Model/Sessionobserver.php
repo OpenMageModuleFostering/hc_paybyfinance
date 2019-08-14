@@ -4,7 +4,7 @@
  *
  * Hitachi Capital Pay By Finance Extension
  *
- * PHP version >= 5.3.*
+ * PHP version >= 5.4.*
  *
  * @category  HC
  * @package   PayByFinance
@@ -59,9 +59,16 @@ class HC_PayByFinance_Model_Sessionobserver
                 $eligibleAmount += $shippingCost;
             }
 
+            $calculator = Mage::getSingleton('paybyfinance/calculator');
+            $minInstallment = $calculator->getLowestMonthlyInstallment($eligibleAmount);
+            if (!$minInstallment) {
+                $session->setData('enabled', false);
+            }
+
             if (($eligibleAmount) < $minAmount) {
                 $session->setData('enabled', false);
             }
+
             if (!$helper->isActive()) {
                 $session->setData('enabled', false);
             }

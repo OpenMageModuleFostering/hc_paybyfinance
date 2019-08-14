@@ -4,7 +4,7 @@
  *
  * Hitachi Capital Pay By Finance Extension
  *
- * PHP version >= 5.3.*
+ * PHP version >= 5.4.*
  *
  * @category  HC
  * @package   PayByFinance
@@ -35,9 +35,7 @@ class HC_PayByFinance_Model_Config_Source_Connectionmode
     {
         $options = array(
             'test' => 'Test',
-            'testrtl' => 'Test RTL',
             'simulation' => 'Simulation',
-            'simulationrtl' => 'Simulation RTL',
             'custom' => 'Custom',
             'live' => 'Live',
         );

@@ -4,7 +4,7 @@
  *
  * Hitachi Capital Pay By Finance Extension
  *
- * PHP version >= 5.3.*
+ * PHP version >= 5.4.*
  *
  * @category  HC
  * @package   PayByFinance
@@ -45,7 +45,9 @@ class HC_PayByFinance_StatusController extends Mage_Core_Controller_Front_Action
      */
     public function acceptedAction()
     {
-        $this->loadLayout()->renderLayout();
+        $this->loadLayout();
+        Mage::dispatchEvent('paybyfinance_status_controller_accepted');
+        $this->renderLayout();
     }
 
     /**
@@ -55,7 +57,9 @@ class HC_PayByFinance_StatusController extends Mage_Core_Controller_Front_Action
      */
     public function referredAction()
     {
-        $this->loadLayout()->renderLayout();
+        $this->loadLayout();
+        Mage::dispatchEvent('paybyfinance_status_controller_referred');
+        $this->renderLayout();
     }
 
     /**
@@ -65,27 +69,33 @@ class HC_PayByFinance_StatusController extends Mage_Core_Controller_Front_Action
      */
     public function declinedAction()
     {
-        $this->loadLayout()->renderLayout();
+        $this->loadLayout();
+        Mage::dispatchEvent('paybyfinance_status_controller_declined');
+        $this->renderLayout();
     }
 
     /**
-     * abandoned
+     * Abandoned. This will be never loaded.
      *
      * @return void
      */
     public function abandonedAction()
     {
-        $this->loadLayout()->renderLayout();
+        $this->loadLayout();
+        Mage::dispatchEvent('paybyfinance_status_controller_abandoned');
+        $this->renderLayout();
     }
 
     /**
-     * error
+     * Error. This might be never used.
      *
      * @return void
      */
     public function errorAction()
     {
-        $this->loadLayout()->renderLayout();
+        $this->loadLayout();
+        Mage::dispatchEvent('paybyfinance_status_controller_error');
+        $this->renderLayout();
     }
 
 }

@@ -4,7 +4,7 @@
  *
  * Hitachi Capital Pay By Finance Extension
  *
- * PHP version >= 5.3.*
+ * PHP version >= 5.4.*
  *
  * @category  HC
  * @package   PayByFinance
@@ -143,12 +143,17 @@ class HC_PayByFinance_CheckoutController extends Mage_Core_Controller_Front_Acti
                     'apr' => floor($service->getApr() * 1000) / 1000,
                     'instalment' => $financeResult->getMonthlyPayment(), // monthly instalment
                     'it' => count($eligibleProducts) + $additionalItems, // number of items
-                    'ro' => $order->getId(), // Order reference
-                    'title' => $address->getPrefix(),
-                    'firstname' => $address->getFirstname(),
-                    'surname' => $address->getLastname(),
-                    'street' => trim($street[0] . ' ' . (isset($street[1]) ? $street[1] : '')),
-                    'town' => $address->getCity(),
+                    'ro' => $order->getIncrementId(), // Order reference
+                    'title' => $helper->sanitizeTitle($address->getPrefix()),
+                    'firstname' => $helper->sanitizeName($address->getFirstname()),
+                    'surname' => $helper->sanitizeName($address->getLastname()),
+                    'street' => $helper->sanitizeStreet(
+                        trim(
+                            $street[0] . ' ' . (isset($street[1]) ? $street[1]
+                                : '')
+                        )
+                    ),
+                    'town' => $helper->sanitizeName($address->getCity()),
                     'postcode' => $address->getPostcode(),
                     'email' => $order->getCustomerEmail(),
                 ),
@@ -189,8 +194,8 @@ class HC_PayByFinance_CheckoutController extends Mage_Core_Controller_Front_Acti
         $helper = Mage::helper('paybyfinance');
         $helper->log("Response: \n" . $helper->arrayDump($parameters), 'post');
 
-        if (array_key_exists('ro', $parameters) && is_numeric($parameters['ro'])) {
-            $order = Mage::getModel('sales/order')->load($parameters['ro']);
+        if (array_key_exists('ro', $parameters)) {
+            $order = Mage::getModel('sales/order')->load($parameters['ro'], 'increment_id');
         }
 
         // Unexpected error, PBF didn't send a correct order id (authentication error?)

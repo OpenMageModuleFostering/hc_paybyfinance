@@ -20,12 +20,11 @@ $updater->startSetup();
 
 $updater->run(
     "
-ALTER TABLE {$this->getTable('paybyfinance_service')}
-    ADD `store_id` SMALLINT(5) UNSIGNED NULL;
-ALTER TABLE {$this->getTable('paybyfinance_service')}
-    ADD CONSTRAINT `FK_paybyfinance_serice_core_store_store_id` FOREIGN KEY(`store_id`)
-        REFERENCES `{$this->getTable('core_store')}` (`store_id`);
+ALTER TABLE {$this->getTable('sales_flat_order')}
+MODIFY COLUMN `finance_status` varchar(24);
+
+ALTER TABLE {$this->getTable('sales_flat_order')}
+ADD `finance_total_added` SMALLINT(5) UNSIGNED NULL;
     "
 );
-
 $updater->endSetup();

@@ -4,7 +4,7 @@
  *
  * Hitachi Capital Pay By Finance Extension
  *
- * PHP version >= 5.3.*
+ * PHP version >= 5.4.*
  *
  * @category  HC
  * @package   PayByFinance
@@ -126,7 +126,7 @@ class HC_PayByFinance_Adminhtml_Paybyfinance_ServiceController
      */
     public function saveAction()
     {
-        if ( $this->getRequest()->getPost() ) {
+        if ($this->getRequest()->getPost()) {
             try {
                 $postData = $this->getRequest()->getPost();
 

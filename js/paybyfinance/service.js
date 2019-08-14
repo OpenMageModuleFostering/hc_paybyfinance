@@ -4,8 +4,10 @@ PaybyfinanceService.prototype = {
         this.form = $('edit_form');
         this.aprField = $('apr');
         this.rpmField = $('rpm');
+        this.rpmField.readOnly = true;
 
         this.aprField.observe('change', this.aprChange.bind(this));
+        this.aprField.observe('blur', this.aprChange.bind(this));
     },
 
     aprChange: function(event) {
@@ -14,9 +16,7 @@ PaybyfinanceService.prototype = {
         rpm = (Math.pow((parseFloat(apr)/100 + 1), (1 / 12)) - 1) * 100;
         rpm = Math.round(rpm * 1000) / 1000;
 
-        if (!this.rpmField.value) {
-            this.rpmField.value = rpm;
-        }
+        this.rpmField.value = rpm;
     }
 };
 Event.observe(window, 'load',  function() {
