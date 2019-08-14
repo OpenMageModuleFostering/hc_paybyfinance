@@ -1,31 +1,31 @@
 <?php
 /**
-* Hitachi Capital Pay By Finance
-*
-* Hitachi Capital Pay By Finance Extension
-*
-* PHP version >= 5.3.*
-*
-* @category  HC
-* @package   PayByFinance
-* @author    Healthy Websites <support@healthywebsites.co.uk>
-* @copyright 2014 Healthy Websites
-* @license   http://www.gnu.org/copyleft/gpl.html GPL License
-* @link      http://www.healthywebsites.co.uk/
-*
-*/
+ * Hitachi Capital Pay By Finance
+ *
+ * Hitachi Capital Pay By Finance Extension
+ *
+ * PHP version >= 5.3.*
+ *
+ * @category  HC
+ * @package   PayByFinance
+ * @author    Healthy Websites <support@healthywebsites.co.uk>
+ * @copyright 2014 Healthy Websites
+ * @license   http://www.gnu.org/copyleft/gpl.html GPL License
+ * @link      http://www.healthywebsites.co.uk/
+ *
+ */
 
 /**
-* Form widget block for service
-*
-* @uses     Mage_Adminhtml_Block_Widget_Form
-*
-* @category HC
-* @package  PayByFinance
-* @author   Healthy Websites <support@healthywebsites.co.uk>
-* @license  http://www.gnu.org/copyleft/gpl.html GPL License
-* @link     http://www.healthywebsites.co.uk/
-*/
+ * Form widget block for service
+ *
+ * @uses     Mage_Adminhtml_Block_Widget_Form
+ *
+ * @category HC
+ * @package  PayByFinance
+ * @author   Healthy Websites <support@healthywebsites.co.uk>
+ * @license  http://www.gnu.org/copyleft/gpl.html GPL License
+ * @link     http://www.healthywebsites.co.uk/
+ */
 class HC_PayByFinance_Block_Adminhtml_Paybyfinance_Service_Edit_Form
     extends Mage_Adminhtml_Block_Widget_Form
 {

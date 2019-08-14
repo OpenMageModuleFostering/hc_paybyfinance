@@ -18,20 +18,26 @@
 $updater = $this;      // $this is class Mage_Eav_Model_Entity_Setup
 $updater->startSetup();
 
-$content = file_get_contents(
-    'app/code/local/HC/PayByFinance/sql/paybyfinance_setup/html/page-finance-options.html'
-);
-$cmsPage = Array (
-    'title' => 'Finance Options',
-    'root_template' => 'one_column',
-    'identifier' => 'finance-options',
-    'content' => $content,
-    'is_active' => 1,
-    'stores' => array(0),
-    'sort_order' => 0
-);
+$resinstaller = Mage::getModel('sales/resource_setup', 'core_setup');
 
-
-Mage::getModel('cms/page')->setData($cmsPage)->save();
+/**
+ * Add 'paybyfinance_enable' attribute for entities.
+ */
+$entities = array(
+    'quote',
+    'quote_address',
+    'quote_item',
+    'quote_address_item',
+    'order',
+    'order_item'
+);
+$options = array(
+    'type'     => Varien_Db_Ddl_Table::TYPE_INTEGER,
+    'visible'  => true,
+    'required' => false
+);
+foreach ($entities as $entity) {
+    $resinstaller->addAttribute($entity, 'paybyfinance_enable', $options);
+}
 
 $updater->endSetup();

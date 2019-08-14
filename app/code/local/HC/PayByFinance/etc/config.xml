@@ -2,7 +2,7 @@
 <config>
     <modules>
         <HC_PayByFinance>
-            <version>1.0.3</version>
+            <version>1.0.4</version>
         </HC_PayByFinance>
     </modules>
     <global>
@@ -50,6 +50,11 @@
         </models>
         <sales>
             <quote>
+                <item>
+                    <product_attributes>
+                        <paybyfinance_enable />
+                    </product_attributes>
+                </item>
                 <totals>
                     <financeamount>
                         <class>paybyfinance/sales_quote_financeamount</class>
@@ -82,6 +87,18 @@
                 </totals>
             </order_creditmemo>
         </sales>
+        <fieldsets>
+            <sales_convert_quote_item>
+                <paybyfinance_enable>
+                    <to_order_item>*</to_order_item>
+                </paybyfinance_enable>
+            </sales_convert_quote_item>
+            <sales_convert_order_item>
+                <paybyfinance_enable>
+                    <to_quote_item>*</to_quote_item>
+                </paybyfinance_enable>
+            </sales_convert_order_item>
+        </fieldsets>
         <resources>
             <paybyfinance_setup>
                 <setup>
@@ -132,6 +149,14 @@
                     </paybyfinance_salesquoteaddressconvert>
                 </observers>
             </sales_convert_quote_address_to_order>
+            <sales_quote_item_set_product>
+                <observers>
+                    <paybyfinance_enable>
+                        <class>paybyfinance/observer</class>
+                        <method>salesQuoteItemSetPaybyfinanceEnable</method>
+                    </paybyfinance_enable>
+                </observers>
+            </sales_quote_item_set_product>
             <paybyfinance_quote_financeamount_collect_before>
                 <observers>
                     <paybyfinance_collectafter>

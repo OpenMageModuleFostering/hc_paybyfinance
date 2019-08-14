@@ -1,29 +1,29 @@
 <?php
 /**
-* Hitachi Capital Pay By Finance
-*
-* Hitachi Capital Pay By Finance Extension
-*
-* PHP version >= 5.3.*
-*
-* @category  HC
-* @package   PayByFinance
-* @author    Healthy Websites <support@healthywebsites.co.uk>
-* @copyright 2014 Hitachi Capital
-* @license   http://www.gnu.org/copyleft/gpl.html GPL License
-* @link      http://www.healthywebsites.co.uk/
-*
-*/
+ * Hitachi Capital Pay By Finance
+ *
+ * Hitachi Capital Pay By Finance Extension
+ *
+ * PHP version >= 5.3.*
+ *
+ * @category  HC
+ * @package   PayByFinance
+ * @author    Healthy Websites <support@healthywebsites.co.uk>
+ * @copyright 2014 Hitachi Capital
+ * @license   http://www.gnu.org/copyleft/gpl.html GPL License
+ * @link      http://www.healthywebsites.co.uk/
+ *
+ */
 
 /**
-* Hitachi Service Model
-*
-* @category HC
-* @package  PayByFinance
-* @author   Healthy Websites <support@healthywebsites.co.uk>
-* @license  http://www.gnu.org/copyleft/gpl.html GPL License
-* @link     http://www.healthywebsites.co.uk/
-*/
+ * Hitachi Service Model
+ *
+ * @category HC
+ * @package  PayByFinance
+ * @author   Healthy Websites <support@healthywebsites.co.uk>
+ * @license  http://www.gnu.org/copyleft/gpl.html GPL License
+ * @link     http://www.healthywebsites.co.uk/
+ */
 class HC_PayByFinance_Model_Post extends Mage_Core_Model_Abstract
 {
     private $_adapter;
@@ -110,7 +110,7 @@ class HC_PayByFinance_Model_Post extends Mage_Core_Model_Abstract
                 'paybyfinance/notification', array("_secure" => true)
             ),
             'address_checked' => $addressChecked == "1" ? 'Y' : 'N',
-            'wizard' => $wizard == "1" ? 'Y' : 'N',
+            'wizard' => $wizard == "1" ? 'new' : 'old',
         );
         $data = array_merge($data, $fields);
 

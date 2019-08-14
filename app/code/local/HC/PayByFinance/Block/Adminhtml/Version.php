@@ -1,34 +1,34 @@
 <?php
 /**
-* Hitachi Capital Pay By Finance
-*
-* Hitachi Capital Pay By Finance Extension
-*
-* PHP version >= 5.3.*
-*
-* @category  HC
-* @package   PayByFinance
-* @author    Healthy Websites <support@healthywebsites.co.uk>
-* @copyright 2014 Healthy Websites
-* @license   http://www.gnu.org/copyleft/gpl.html GPL License
-* @link      http://www.healthywebsites.co.uk/
-*
-*/
+ * Hitachi Capital Pay By Finance
+ *
+ * Hitachi Capital Pay By Finance Extension
+ *
+ * PHP version >= 5.3.*
+ *
+ * @category  HC
+ * @package   PayByFinance
+ * @author    Healthy Websites <support@healthywebsites.co.uk>
+ * @copyright 2014 Healthy Websites
+ * @license   http://www.gnu.org/copyleft/gpl.html GPL License
+ * @link      http://www.healthywebsites.co.uk/
+ *
+ */
 
 /**
-* Version information to be displayed on the configuration
-*
-* @uses     Mage_Adminhtml_Block_Template
-*
-* @category HC
-* @package  PayByFinance
-* @author   Healthy Websites <support@healthywebsites.co.uk>
-* @license  http://www.gnu.org/copyleft/gpl.html GPL License
-* @link     http://www.healthywebsites.co.uk/
-*/
+ * Version information to be displayed on the configuration
+ *
+ * @uses     Mage_Adminhtml_Block_Template
+ *
+ * @category HC
+ * @package  PayByFinance
+ * @author   Healthy Websites <support@healthywebsites.co.uk>
+ * @license  http://www.gnu.org/copyleft/gpl.html GPL License
+ * @link     http://www.healthywebsites.co.uk/
+ */
 class HC_PayByFinance_Block_Adminhtml_Version extends Mage_Adminhtml_Block_Template
 {
-    const PATCH_LEVEL = 5;
+    const PATCH_LEVEL = 1;
 
     protected $_template = "paybyfinance/version.phtml";
 
@@ -73,7 +73,7 @@ class HC_PayByFinance_Block_Adminhtml_Version extends Mage_Adminhtml_Block_Templ
             $saux = 'EE';
         } else {
             $aux = 'Community Edition';
-            $saux = 'CD';
+            $saux = 'CE';
         }
         $mageVersion = Mage::getVersion();
         $mage = "Magento {$aux} {$mageVersion}";

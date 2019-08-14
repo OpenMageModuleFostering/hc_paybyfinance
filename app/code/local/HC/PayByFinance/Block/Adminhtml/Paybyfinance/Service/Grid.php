@@ -1,31 +1,31 @@
 <?php
 /**
-* Hitachi Capital Pay By Finance
-*
-* Hitachi Capital Pay By Finance Extension
-*
-* PHP version >= 5.3.*
-*
-* @category  HC
-* @package   PayByFinance
-* @author    Healthy Websites <support@healthywebsites.co.uk>
-* @copyright 2014 Healthy Websites
-* @license   http://www.gnu.org/copyleft/gpl.html GPL License
-* @link      http://www.healthywebsites.co.uk/
-*
-*/
+ * Hitachi Capital Pay By Finance
+ *
+ * Hitachi Capital Pay By Finance Extension
+ *
+ * PHP version >= 5.3.*
+ *
+ * @category  HC
+ * @package   PayByFinance
+ * @author    Healthy Websites <support@healthywebsites.co.uk>
+ * @copyright 2014 Healthy Websites
+ * @license   http://www.gnu.org/copyleft/gpl.html GPL License
+ * @link      http://www.healthywebsites.co.uk/
+ *
+ */
 
 /**
-* Grid widget for services
-*
-* @uses     Mage_Adminhtml_Block_Widget_Grid
-*
-* @category HC
-* @package  PayByFinance
-* @author   Healthy Websites <support@healthywebsites.co.uk>
-* @license  http://www.gnu.org/copyleft/gpl.html GPL License
-* @link     http://www.healthywebsites.co.uk/
-*/
+ * Grid widget for services
+ *
+ * @uses     Mage_Adminhtml_Block_Widget_Grid
+ *
+ * @category HC
+ * @package  PayByFinance
+ * @author   Healthy Websites <support@healthywebsites.co.uk>
+ * @license  http://www.gnu.org/copyleft/gpl.html GPL License
+ * @link     http://www.healthywebsites.co.uk/
+ */
 class HC_PayByFInance_Block_Adminhtml_Paybyfinance_Service_Grid
     extends Mage_Adminhtml_Block_Widget_Grid
 {

@@ -1,29 +1,29 @@
 <?php
 /**
-* Hitachi Capital Pay By Finance
-*
-* Hitachi Capital Pay By Finance Extension
-*
-* PHP version >= 5.3.*
-*
-* @category  HC
-* @package   PayByFinance
-* @author    Healthy Websites <support@healthywebsites.co.uk>
-* @copyright 2014 Hitachi Capital
-* @license   http://www.gnu.org/copyleft/gpl.html GPL License
-* @link      http://www.healthywebsites.co.uk/
-*
-*/
+ * Hitachi Capital Pay By Finance
+ *
+ * Hitachi Capital Pay By Finance Extension
+ *
+ * PHP version >= 5.3.*
+ *
+ * @category  HC
+ * @package   PayByFinance
+ * @author    Healthy Websites <support@healthywebsites.co.uk>
+ * @copyright 2014 Hitachi Capital
+ * @license   http://www.gnu.org/copyleft/gpl.html GPL License
+ * @link      http://www.healthywebsites.co.uk/
+ *
+ */
 
 /**
-* Hitachi Observer Model
-*
-* @category HC
-* @package  PayByFinance
-* @author   Healthy Websites <support@healthywebsites.co.uk>
-* @license  http://www.gnu.org/copyleft/gpl.html GPL License
-* @link     http://www.healthywebsites.co.uk/
-*/
+ * Hitachi Observer Model
+ *
+ * @category HC
+ * @package  PayByFinance
+ * @author   Healthy Websites <support@healthywebsites.co.uk>
+ * @license  http://www.gnu.org/copyleft/gpl.html GPL License
+ * @link     http://www.healthywebsites.co.uk/
+ */
 class HC_PayByFinance_Model_Observer
 {
     /**
@@ -89,6 +89,20 @@ class HC_PayByFinance_Model_Observer
                 ->setTotalDue($order->getGrandTotal())
                 ->setFromQuote(true);
         }
+    }
+
+    /**
+     * Set paybyfinance_enable attribute on quote items based on products attribute
+     *
+     * @param Object $observer Observer
+     *
+     * @return void
+     */
+    public function salesQuoteItemSetPaybyfinanceENable($observer)
+    {
+        $quoteItem = $observer->getQuoteItem();
+        $product = $observer->getProduct();
+        $quoteItem->setPaybyfinanceEnable($product->getPaybyfinanceEnable());
     }
 
     /**
@@ -191,11 +205,13 @@ class HC_PayByFinance_Model_Observer
         $cart = $observer->getPaypalCart();
         $order = $cart->getSalesEntity();
         $address = $order->getShippingAddress();
-        $cart->addItem(
-            Mage::helper('paybyfinance')->__('Financed Amount'),
-            1,
-            $address->getFinanceAmount()
-        );
+        if ($address->getFinanceAmount() != 0) {
+            $cart->addItem(
+                Mage::helper('paybyfinance')->__('Financed Amount'),
+                1,
+                $address->getFinanceAmount()
+            );
+        }
         return $this;
     }
 

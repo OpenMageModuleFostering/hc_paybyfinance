@@ -150,7 +150,9 @@ Healthy.Slider = Class.create({
                     el.removeClassName('active');
                 });
 
-                slider.ruler.select('li.ruler-'+ slider.inputField.value)[0].addClassName('active');
+                if (slider.ruler.select('li.ruler-'+ slider.inputField.value).length !== 0) {
+                    slider.ruler.select('li.ruler-'+ slider.inputField.value)[0].addClassName('active');
+                }
             }
 
             this.pointer.setStyle({left: x + 'px'});

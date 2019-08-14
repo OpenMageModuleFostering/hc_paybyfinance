@@ -6,7 +6,10 @@
 <!-- If you have any problems with the templates, comment out this section   -->
     <checkout_cart_index>
         <reference name="checkout.cart">
+            <!-- Use setTemplate for Magento 1.8 and below -->
+            <action method="setTemplate"><value>checkout/cart-pbf.phtml</value></action>
             <action method="setCartTemplate"><value>checkout/cart-pbf.phtml</value></action>
+
         </reference>
         <reference name="checkout.cart.totals">
             <action method="setTemplate"><template>checkout/cart/totals-pbf.phtml</template></action>

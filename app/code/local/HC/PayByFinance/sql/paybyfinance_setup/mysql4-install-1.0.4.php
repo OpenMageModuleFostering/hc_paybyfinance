@@ -1,22 +1,23 @@
 <?php
 /**
-* Hitachi Capital Pay By Finance
-*
-* Hitachi Capital Pay By Finance Extension
-*
-* PHP version >= 5.3.*
-*
-* @category  HC
-* @package   PayByFinance
-* @author    Healthy Websites <support@healthywebsites.co.uk>
-* @copyright 2014 Hitachi Capital
-* @license   http://www.gnu.org/copyleft/gpl.html GPL License
-* @link      http://www.healthywebsites.co.uk/
-*
-*/
+ * Hitachi Capital Pay By Finance
+ *
+ * Hitachi Capital Pay By Finance Extension
+ *
+ * PHP version >= 5.3.*
+ *
+ * @category  HC
+ * @package   PayByFinance
+ * @author    Healthy Websites <support@healthywebsites.co.uk>
+ * @copyright 2014 Hitachi Capital
+ * @license   http://www.gnu.org/copyleft/gpl.html GPL License
+ * @link      http://www.healthywebsites.co.uk/
+ *
+ */
 
 $installer = $this;
 $setup = Mage::getModel('eav/entity_setup', 'core_setup');
+$resinstaller = Mage::getModel('sales/resource_setup', 'core_setup');
 
 $installer->startSetup();
 
@@ -195,6 +196,26 @@ $setup->addAttribute(
         'apply_to'    => '',
     )
 );
+
+/**
+ * Add 'paybyfinance_enable' attribute for entities.
+ */
+$entities = array(
+    'quote',
+    'quote_address',
+    'quote_item',
+    'quote_address_item',
+    'order',
+    'order_item'
+);
+$options = array(
+    'type'     => Varien_Db_Ddl_Table::TYPE_INTEGER,
+    'visible'  => true,
+    'required' => false
+);
+foreach ($entities as $entity) {
+    $resinstaller->addAttribute($entity, 'paybyfinance_enable', $options);
+}
 
 $content = file_get_contents(
     'app/code/local/HC/PayByFinance/sql/paybyfinance_setup/html/page-finance-options.html'

@@ -1,31 +1,31 @@
 <?php
 /**
-* Hitachi Capital Pay By Finance
-*
-* Hitachi Capital Pay By Finance Extension
-*
-* PHP version >= 5.3.*
-*
-* @category  HC
-* @package   PayByFinance
-* @author    Healthy Websites <support@healthywebsites.co.uk>
-* @copyright 2014 Hitachi Capital
-* @license   http://www.gnu.org/copyleft/gpl.html GPL License
-* @link      http://www.healthywebsites.co.uk/
-*
-*/
+ * Hitachi Capital Pay By Finance
+ *
+ * Hitachi Capital Pay By Finance Extension
+ *
+ * PHP version >= 5.3.*
+ *
+ * @category  HC
+ * @package   PayByFinance
+ * @author    Healthy Websites <support@healthywebsites.co.uk>
+ * @copyright 2014 Hitachi Capital
+ * @license   http://www.gnu.org/copyleft/gpl.html GPL License
+ * @link      http://www.healthywebsites.co.uk/
+ *
+ */
 
 /**
-* Controller for PBF pingback notifications
-*
-* @uses     Mage_Adminhtml_Controller_Action
-*
-* @category HC
-* @package  PayByFinance
-* @author   Healthy Websites <support@healthywebsites.co.uk>
-* @license  http://www.gnu.org/copyleft/gpl.html GPL License
-* @link     http://www.healthywebsites.co.uk/
-*/
+ * Controller for PBF pingback notifications
+ *
+ * @uses     Mage_Adminhtml_Controller_Action
+ *
+ * @category HC
+ * @package  PayByFinance
+ * @author   Healthy Websites <support@healthywebsites.co.uk>
+ * @license  http://www.gnu.org/copyleft/gpl.html GPL License
+ * @link     http://www.healthywebsites.co.uk/
+ */
 class HC_PayByFinance_NotificationController extends Mage_Core_Controller_Front_Action
 {
     /**
@@ -44,7 +44,7 @@ class HC_PayByFinance_NotificationController extends Mage_Core_Controller_Front_
             || !array_key_exists('applicationNo', $parameters)
         ) {
             $helper->log(
-                'Error in notification parameters: ' . http_build_query($parameters),
+                'Error in notification parameters: ' . $helper->arrayDump($parameters),
                 'notification'
             );
             echo "0";
