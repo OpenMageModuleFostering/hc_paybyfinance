@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+
+    <menu>
+        <paybyfinance module="paybyfinance">
+            <title>Pay By Finance</title>
+            <sort_order>71</sort_order>
+            <children>
+                <services module="paybyfinance">
+                    <title>Services</title>
+                    <sort_order>0</sort_order>
+                    <action>adminhtml/paybyfinance_service</action>
+                </services>
+                <configuration>
+                    <title>Configuration</title>
+                    <sort_order>1</sort_order>
+                    <action>adminhtml/system_config/edit/section/hc_paybyfinance</action>
+                </configuration>
+            </children>
+        </paybyfinance>
+    </menu>
+
+    <acl>
+        <resources>
+            <all>
+                <title>Allow Everything</title>
+            </all>
+            <admin>
+                <children>
+                    <system>
+                        <children>
+                            <config>
+                                <children>
+                                    <hc_paybyfinance>
+                                        <title>Hitachi Capital</title>
+                                        <sort_order>100</sort_order>
+                                    </hc_paybyfinance>
+                                </children>
+                            </config>
+                        </children>
+                    </system>
+                    <paybyfinance>
+                        <title>Paybyfinance Module</title>
+                        <sort_order>200</sort_order>
+                    </paybyfinance>
+                </children>
+            </admin>
+        </resources>
+    </acl>
+
+</config>

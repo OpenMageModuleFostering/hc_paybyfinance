@@ -1,0 +1,194 @@
+<?xml version="1.0"?>
+<layout>
+
+    <default>
+        <reference name="head">
+            <action method="addCss"><link>css/paybyfinance.css</link></action>
+            <action method="addItem">
+                <type>skin_css</type>
+                <name>css/paybyfinance-ie8.css</name>
+                <params/>
+                <if>lt IE 9</if>
+            </action>
+            <action method="addItem"><type>skin_js</type><name>js/paybyfinance/functions.js</name></action>
+            <action method="addItem"><type>skin_js</type><name>js/paybyfinance/slider.js</name></action>
+        </reference>
+    </default>
+
+    <catalog_product_view>
+        <reference name="product.info">
+            <block type="paybyfinance/selector" name="paybyfinance.selector" as="pbfselector" template="paybyfinance/selector.phtml">
+                <action method="addToParentGroup"><group>detailed_info</group></action>
+                <action method="setTitle" translate="value"><value>Pay by Finance</value></action>
+            </block>
+        </reference>
+    </catalog_product_view>
+
+    <checkout_cart_index>
+        <reference name="checkout.cart">
+            <block type="paybyfinance/selector" name="paybyfinance.selector.cart" as="cartpbfselector" template="paybyfinance/selector.phtml" />
+        </reference>
+        <reference name="checkout.cart.extra">
+            <block type="paybyfinance/selector" name="paybyfinance.selector" as="pbfselector" template="paybyfinance/selector.phtml" />
+        </reference>
+    </checkout_cart_index>
+
+    <checkout_onepage_index>
+        <reference name="head">
+            <action method="addItem"><type>skin_js</type><name>js/paybyfinance/checkout.js</name></action>
+        </reference>
+        <reference name="right">
+            <block type="paybyfinance/selector" name="paybyfinance.selector.cart" as="cartpbfselector" template="paybyfinance/selector.phtml" />
+        </reference>
+    </checkout_onepage_index>
+
+    <onestepcheckout_index_index>
+        <reference name="head">
+            <action method="addItem"><type>skin_js</type><name>js/paybyfinance/checkout.js</name></action>
+        </reference>
+    </onestepcheckout_index_index>
+
+    <hc_paybyfinance_status>
+        <remove name="right"/>
+        <remove name="left"/>
+        <reference name="root">
+            <action method="setTemplate"><template>page/1column.phtml</template></action>
+        </reference>
+    </hc_paybyfinance_status>
+
+    <hc_paybyfinance_status_accepted>
+        <update handle="hc_paybyfinance_status"/>
+        <reference name="content">
+            <block type="paybyfinance/status" name="paybyfinance.status" as ="pbfstatus" template="paybyfinance/status.phtml">
+                <action method="setType"><type>accepted</type></action>
+            </block>
+        </reference>
+    </hc_paybyfinance_status_accepted>
+
+    <hc_paybyfinance_status_referred>
+        <update handle="hc_paybyfinance_status"/>
+        <reference name="content">
+            <block type="paybyfinance/status" name="paybyfinance.status" as ="pbfstatus" template="paybyfinance/status.phtml">
+                <action method="setType"><type>referred</type></action>
+            </block>
+        </reference>
+    </hc_paybyfinance_status_referred>
+
+    <hc_paybyfinance_status_declined>
+        <update handle="hc_paybyfinance_status"/>
+        <reference name="content">
+            <block type="paybyfinance/status" name="paybyfinance.status" as ="pbfstatus" template="paybyfinance/status.phtml">
+                <action method="setType"><type>declined</type></action>
+            </block>
+        </reference>
+    </hc_paybyfinance_status_declined>
+
+    <hc_paybyfinance_status_abandoned>
+        <update handle="hc_paybyfinance_status"/>
+        <reference name="content">
+            <block type="paybyfinance/status" name="paybyfinance.status" as ="pbfstatus" template="paybyfinance/status.phtml">
+                <action method="setType"><type>abandoned</type></action>
+            </block>
+        </reference>
+    </hc_paybyfinance_status_abandoned>
+
+    <hc_paybyfinance_status_error>
+        <update handle="hc_paybyfinance_status"/>
+        <reference name="content">
+            <block type="paybyfinance/status" name="paybyfinance.status" as ="pbfstatus" template="paybyfinance/status.phtml">
+                <action method="setType"><type>error</type></action>
+            </block>
+        </reference>
+    </hc_paybyfinance_status_error>
+
+    <sales_order_view>
+        <reference name="my.account.wrapper">
+            <reference name="sales.order.view">
+                <reference name="order_items">
+                    <reference name="order_totals">
+                        <block type="paybyfinance/sales_order_totals" name="paybyfinance" template="paybyfinance/sales/order/totals.phtml" />
+                    </reference>
+                </reference>
+            </reference>
+        </reference>
+    </sales_order_view>
+
+    <sales_order_invoice translate="label">
+        <reference name="my.account.wrapper">
+            <reference name="sales.order.invoice">
+                <reference name="invoice_items">
+                    <reference name="invoice_totals">
+                        <block type="paybyfinance/sales_order_totals" name="paybyfinance" template="paybyfinance/sales/order/totals.phtml" />
+                    </reference>
+                </reference>
+            </reference>
+        </reference>
+    </sales_order_invoice>
+
+    <sales_order_creditmemo>
+        <reference name="my.account.wrapper">
+            <reference name="sales.order.creditmemo">
+                <reference name="creditmemo_items">
+                    <reference name="creditmemo_totals">
+                        <block type="paybyfinance/sales_order_totals" name="paybyfinance" template="paybyfinance/sales/order/totals.phtml" />
+                    </reference>
+                </reference>
+            </reference>
+        </reference>
+    </sales_order_creditmemo>
+
+    <sales_order_print>
+        <reference name="content">
+            <reference name="sales.order.print">
+                <reference name="order_totals">
+                        <block type="paybyfinance/sales_order_totals" name="paybyfinance" template="paybyfinance/sales/order/totals.phtml" />
+                </reference>
+            </reference>
+        </reference>
+    </sales_order_print>
+
+    <sales_order_printinvoice translate="label">
+        <reference name="content">
+            <reference name="sales.order.print.invoice">
+                <reference name="invoice_totals">
+                    <block type="paybyfinance/sales_order_totals" name="paybyfinance" template="paybyfinance/sales/order/totals.phtml" />
+                </reference>
+            </reference>
+        </reference>
+    </sales_order_printinvoice>
+
+    <sales_order_printcreditmemo>
+        <reference name="content">
+            <reference name="sales.order.print.creditmemo">
+                <reference name="creditmemo_totals">
+                    <block type="paybyfinance/sales_order_totals" name="paybyfinance" template="paybyfinance/sales/order/totals.phtml" />
+                </reference>
+            </reference>
+        </reference>
+    </sales_order_printcreditmemo>
+
+    <sales_email_order_items>
+        <reference name="items">
+            <reference name="order_totals">
+                <block type="paybyfinance/sales_order_totals" name="paybyfinance" template="paybyfinance/sales/order/totals.phtml" />
+            </reference>
+        </reference>
+    </sales_email_order_items>
+
+    <sales_email_order_invoice_items>
+        <reference name="items">
+            <reference name="invoice_totals">
+                <block type="paybyfinance/sales_order_totals" name="paybyfinance" template="paybyfinance/sales/order/totals.phtml" />
+            </reference>
+        </reference>
+    </sales_email_order_invoice_items>
+
+    <sales_email_order_creditmemo_items>
+        <reference name="items">
+            <reference name="creditmemo_totals">
+                <block type="paybyfinance/sales_order_totals" name="paybyfinance" template="paybyfinance/sales/order/totals.phtml" />
+            </reference>
+        </reference>
+    </sales_email_order_creditmemo_items>
+
+</layout>

@@ -1,0 +1,124 @@
+<?xml version="1.0"?>
+
+<layout>
+    <adminhtml_paybyfinance_service_index>
+        <reference name="content">
+            <block type="paybyfinance/adminhtml_paybyfinance_service" name="pbf_service"></block>
+        </reference>
+    </adminhtml_paybyfinance_service_index>
+
+    <adminhtml_sales_order_view>
+        <reference name="left">
+            <reference name="sales_order_tabs">
+                <reference name="order_tab_info">
+                    <reference name="order_totals">
+                        <!-- <reference name="sales.order.view.totals.main"> -->
+                        <block type="adminhtml/sales_order_totals_item" name="hcfinanced" template="sales/order/totals/item.phtml" before="adjustment_positive">
+                            <action method="setSourceField"><value>finance_amount</value></action>
+                            <action method="setLabel"><value>Financed Amount</value></action>
+                        </block>
+                        <!-- </reference> -->
+                    </reference>
+                </reference>
+            </reference>
+        </reference>
+    </adminhtml_sales_order_view>
+
+    <adminhtml_sales_order_invoice_new>
+        <reference name="content">
+            <reference name="sales_invoice_create">
+                <reference name="form">
+                    <reference name="order_items">
+                        <reference name="invoice_totals">
+                            <!-- <reference name="sales.order.view.totals.main"> -->
+                            <block type="adminhtml/sales_order_totals_item" name="hcfinanced" template="sales/order/totals/item.phtml" before="adjustment_positive">
+                                <action method="setSourceField"><value>finance_amount</value></action>
+                                <action method="setLabel"><value>Financed Amount</value></action>
+                            </block>
+                            <!-- </reference> -->
+                        </reference>
+                    </reference>
+                </reference>
+            </reference>
+        </reference>
+    </adminhtml_sales_order_invoice_new>
+
+    <adminhtml_sales_order_invoice_updateqty>
+        <reference name="order_items">
+            <reference name="invoice_totals">
+                <!-- <reference name="sales.order.view.totals.main"> -->
+                    <block type="adminhtml/sales_order_totals_item" name="hcfinanced" template="sales/order/totals/item.phtml" before="adjustment_positive">
+                        <action method="setSourceField"><value>finance_amount</value></action>
+                        <action method="setLabel"><value>Financed Amount</value></action>
+                    </block>
+                <!-- </reference> -->
+            </reference>
+        </reference>
+    </adminhtml_sales_order_invoice_updateqty>
+
+    <adminhtml_sales_order_invoice_view>
+        <reference name="content">
+            <reference name="sales_invoice_view">
+                <reference name="form">
+                    <reference name="invoice_totals">
+                        <!-- <reference name="sales.order.view.totals.main"> -->
+                            <block type="adminhtml/sales_order_totals_item" name="hcfinanced" template="sales/order/totals/item.phtml" before="adjustment_positive">
+                                <action method="setSourceField"><value>finance_amount</value></action>
+                                <action method="setLabel"><value>Financed Amount</value></action>
+                            </block>
+                        <!-- </reference> -->
+                    </reference>
+                </reference>
+            </reference>
+        </reference>
+    </adminhtml_sales_order_invoice_view>
+
+    <adminhtml_sales_order_creditmemo_new>
+        <reference name="content">
+            <reference name="sales_creditmemo_create">
+                <reference name="form">
+                    <reference name="order_items">
+                        <reference name="creditmemo_totals">
+                            <!-- <reference name="sales.order.view.totals.main"> -->
+                                <block type="adminhtml/sales_order_totals_item" name="hcfinanced" template="sales/order/totals/item.phtml" before="adjustment_positive">
+                                    <action method="setSourceField"><value>finance_amount</value></action>
+                                    <action method="setLabel"><value>Financed Amount</value></action>
+                                </block>
+                            <!-- </reference> -->
+                        </reference>
+                    </reference>
+                </reference>
+            </reference>
+        </reference>
+    </adminhtml_sales_order_creditmemo_new>
+
+    <adminhtml_sales_order_creditmemo_updateqty>
+        <reference name="order_items">
+            <reference name="creditmemo_totals">
+                <!-- <reference name="sales.order.view.totals.main"> -->
+                    <block type="adminhtml/sales_order_totals_item" name="hcfinanced" template="sales/order/totals/item.phtml" before="adjustment_positive">
+                        <action method="setSourceField"><value>finance_amount</value></action>
+                        <action method="setLabel"><value>Financed Amount</value></action>
+                    </block>
+                <!-- </reference> -->
+            </reference>
+        </reference>
+    </adminhtml_sales_order_creditmemo_updateqty>
+
+    <adminhtml_sales_order_creditmemo_view>
+        <reference name="content">
+            <reference name="sales_creditmemo_view">
+                <reference name="form">
+                    <reference name="creditmemo_totals">
+                        <!-- <reference name="sales.order.view.totals.main"> -->
+                            <block type="adminhtml/sales_order_totals_item" name="hcfinanced" template="sales/order/totals/item.phtml" before="adjustment_positive">
+                                <action method="setSourceField"><value>finance_amount</value></action>
+                                <action method="setLabel"><value>Financed Amount</value></action>
+                            </block>
+                        <!-- </reference> -->
+                    </reference>
+                </reference>
+            </reference>
+        </reference>
+    </adminhtml_sales_order_creditmemo_view>
+</layout>

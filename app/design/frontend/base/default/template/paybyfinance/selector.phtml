@@ -1,0 +1,489 @@
+<?php
+/**
+* Hitachi Capital Pay By Finance
+*
+* Hitachi Capital Pay By Finance Extension
+*
+* PHP version >= 5.3.*
+*
+* @category  HC
+* @package   PayByFinance
+* @author    Healthy Websites <support@healthywebsites.co.uk>
+* @copyright 2014 Hitachi Capital
+* @license   http://www.healthywebsites.co.uk/license.html HWS License
+* @link      http://www.healthywebsites.co.uk/
+*
+*/
+
+$_services = $this->getServices();
+$_product = $this->getProduct(); // returns with null if we are not on the product page
+$_data = json_decode($this->getJSON());
+?>
+
+<div class="paybyfinance-selector"><div id="paybyfinance">
+
+    <?php if ($_product && !Mage::helper('paybyfinance')->isProductEligible($_product)): ?>
+        <p class="error">Product is not eligible for finance.</p>
+    <?php endif; ?>
+
+    <h3>Would you like to pay by Finance?</h3>
+    <?php if (!$_product): ?>
+        <input id="paybyfinance-no" type="radio" name="pbf-checkbox" value="" onclick="$('paybyfinance-container').hide(); $('pbf-cart-btn').show(); pbf_redraw();" checked>
+        <label for="paybyfinance-no">No</label><br>
+        <input id="paybyfinance-yes" type="radio" name="pbf-checkbox" value="paybyfinance" onclick="$('paybyfinance-container').show(); $('pbf-cart-btn').show(); pbf_redraw();">
+        <label for="paybyfinance-yes">Yes</label><br>
+    <?php endif; ?>
+    <div id="paybyfinance-container" <?php if (!$_product) echo 'style="display: none;"'; ?>>
+        <p>Finance Calculation for your <span class="calculated" id="pbf-ordervalue">-</span> order</p>
+        <p>I would like to pay a deposit of <span class="calculated" id="pbf-deposit">-</span></p>
+
+        <input id="pbf-input-deposit" name="pbf-input-deposit" class="pbf-input-hidden" type="range" min="0" max="6" value ="1"/>
+
+        <?php if (!$this->getIsFixedDepositOnly()): ?>
+            <div id="pbf-deposit-slider" class="healthy-slider clearfix"> <div class="slider-marker"></div> <div class="slider-pointer"></div> </div>
+
+            <ul id="pbf-deposit-ruler" class="healthy-ruler">
+                <li onclick="javascript:pbf_deposit(0);" class="ruler ruler-0">0%</li>
+                <li onclick="javascript:pbf_deposit(10);" class="ruler ruler-1">10%</li>
+                <li onclick="javascript:pbf_deposit(20);" class="ruler ruler-2">20%</li>
+                <li onclick="javascript:pbf_deposit(30);" class="ruler ruler-3">30%</li>
+                <li onclick="javascript:pbf_deposit(40);" class="ruler ruler-4">40%</li>
+                <li onclick="javascript:pbf_deposit(50);" class="ruler ruler-5">50%</li>
+                <li onclick="javascript:pbf_deposit(60);" class="ruler ruler-6">60%</li>
+            </ul>
+        <?php endif; ?>
+        <ul id="pbf-error" class="messages">
+            <li class="error-msg">
+                <ul>
+                    <li id="pbf-error-msg"></li>
+                </ul>
+            </li>
+        </ul>
+
+        <div id="pbf-input-type-wrapper">
+        </div>
+
+        <p>I would like to pay over <span id="pbf-term-months" class="calculated"></span> months</p>
+
+        <div id="pbf-input-term-wrapper">
+        </div>
+
+
+
+        <table class="services">
+            <?php foreach ($_services as $_service): ?>
+                <tr>
+                    <td>
+                        <?php echo $_service->getName(); ?> (<?php echo $_service->getApr() ?>% APR Representative for <strong><?php echo $_service->getTerm(); ?> months</strong>)
+                    </td>
+                    <td>
+                        <input type="radio" name="service" onclick="javascript:pbf_selector_recalculate();" value="<?php echo $_service->getId(); ?>" <?php echo $checked?'':'checked'; ?> />
+                    </td>
+                </tr>
+                <?php $checked = true; ?>
+            <?php endforeach; ?>
+        </table>
+
+        <div class="paybyfinance-sum">
+            <table>
+                <tr>
+                    <td>
+                        <span id="pbf-term">10</span> Monthly payments of
+                    </td>
+                    <td style="text-align: right;">
+                        <span id="pbf-monthly-payment">-</span>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td colspan="2">
+                        <span id="pbf-apr">10</span>% APR (representative)
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>
+                        Total Credit
+                    </td>
+                    <td id="pbf-totalcredit" style="text-align: right;">
+                        -
+                    </td>
+                </tr>
+
+                <tr id="pbf-interestpayable-tr">
+                    <td>
+                        Interest Payable
+                    </td>
+                    <td id="pbf-interestpayable" style="text-align: right;">
+                        -
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>
+                        Total Amount Payable
+                    </td>
+                    <td id="pbf-payable" style="text-align: right;">
+                        -
+                    </td>
+                </tr>
+
+            </table>
+        </div>
+        <div class="pbf-footnote">
+            <p>The figures shown are an illustration based on the cost of goods. Final details including shipping and discounts where applicable will be displayed on the checkout page.</p>
+            <p>Credit is provided by Hitachi Capital Consumer Finance, a division of Hitachi Capital (UK) PLC authorised and regulated by the Financial Conduct Authority.</p>
+            <p><?php echo $this->getRetailerName(); ?> <?php echo $this->getTradingName(); ?> acts as a credit broker and is authorised and regulated by the Financial Conduct Authority.</p>
+            <p><strong>IMPORTANT:</strong> Hitachi Capital rounds down the monthly payments, which may result in your total amount payable being less than the total cash price.</p>
+        </div>
+    </div>
+    <?php if ($_product): ?>
+        <button id="pbf-productcart-btn" type="button" title="Add to Cart" class="button btn-cart" onclick="javascript:pbf_submit()"><span><span>Pay By Finance</span></span></button>
+    <?php else: ?>
+        <button id="pbf-cart-btn" type="button" title="Update" class="button btn-cart" onclick="javascript:pbf_update()"><span><span>Update</span></span></button>
+        <script type="text/javascript">
+            // Automatically refresh the widget totals in any interaction
+            $(document).observe("billing-request:completed", function(event) {
+                pbf_ajax_update();
+            });
+            $(document).observe("payment-method:switched", function(event) {
+                pbf_ajax_update();
+            });
+
+            Ajax.Responders.register({
+                onComplete: function(ee) {
+                    if (ee.url.match(/onestepcheckout\/ajax\/(set_methods_separate|save_billing|add_coupon|add_giftcard)/)) {
+                        pbf_ajax_update();
+                    }
+                }
+            });
+        </script>
+    <?php endif; ?>
+    </div>
+</div>
+
+<script type="text/javascript">
+    var pbf_selector_data = <?php echo $this->getJSON(); ?>;
+    var pbf_selector_user = new Object();
+    var touchstatus = 'up';
+
+    function pbf_selector_recalculate() {
+        var value = $("pbf-input-deposit").value * 10;
+        var service_id = $$('#paybyfinance input:checked[name=service]')[0].value;
+        var service = pbf_selector_data.services[service_id];
+        var deposit = ((value / 100) * pbf_selector_data.amount);
+        var credit = (pbf_selector_data.amount - deposit);
+        var monthly = Math.floor((credit * service.multiplier) * 100) / 100; // No rounding issues, rounding always down
+        if (service.type == '32') {
+            monthly = Math.floor((credit / service.term) * 100) / 100;
+        }
+        var payable = (monthly * service.term + deposit);
+        var interestpayable = payable - credit - deposit;
+        currencyFormat = Healthy.Functions.currencyFormat;
+
+        $('pbf-apr').update(parseFloat(service.apr));
+        $('pbf-ordervalue').update("£" + currencyFormat(pbf_selector_data.amount));
+        $('pbf-deposit').update(value + "% = £" + currencyFormat(deposit));
+        $('pbf-totalcredit').update("£" + currencyFormat(credit));
+        $('pbf-term').update(service.term);
+        $('pbf-term-months').update(service.term);
+        $('pbf-monthly-payment').update('£' + currencyFormat(monthly));
+        $('pbf-interestpayable').update('£' + currencyFormat(interestpayable));
+        if(service.type == 31) {
+            //only show if it is an interest bearing service type
+            $('pbf-interestpayable-tr').show();
+        } else {
+            $('pbf-interestpayable-tr').hide();
+        }
+
+        $('pbf-payable').update('£' + currencyFormat(payable));
+
+        if (value < service.deposit) {
+            $('pbf-error-msg').update("The minimum deposit value is "+parseInt(service.deposit)+"%");
+            $('pbf-error').setStyle({height: 45+"px", opacity: 0.99});
+            if ($('pbf-productcart-btn')) {
+                Form.Element.disable('pbf-productcart-btn');
+            }
+            if ($('pbf-cart-btn')) {
+                Form.Element.disable('pbf-cart-btn');
+            }
+        } else if(credit < service.min_amount) {
+            $('pbf-error-msg').update("The minimum Finance Amount is £"+ currencyFormat(service.min_amount));
+            $('pbf-error').setStyle({height: 45+"px", opacity: 0.99});
+            if ($('pbf-productcart-btn')) {
+                Form.Element.disable('pbf-productcart-btn');
+            }
+            if ($('pbf-cart-btn')) {
+                Form.Element.disable('pbf-cart-btn');
+            }
+        } else {
+            $('pbf-error-msg').update(null);
+            $('pbf-error').setStyle({height: 0, opacity: 0});
+            if ($('pbf-productcart-btn')) {
+                Form.Element.enable('pbf-productcart-btn');
+            }
+            if ($('pbf-cart-btn')) {
+                Form.Element.enable('pbf-cart-btn');
+            }
+        }
+    }
+
+    function pbf_term_recalculate() {
+        var typewid = $("pbf-input-type");
+        var typeval = 0;
+        if (typewid) {
+            typeval = typewid.value;
+        }
+        var termval = $("pbf-input-term-"+typeval).value;
+        var service_id = pbf_selector_data['subterms'][typeval][termval].service_id;
+        pbf_selector_user.service = service_id;
+        if ($$('input[name="service"][value="'+service_id+'"]').length != 0) {
+            $$('input[name="service"][value="'+service_id+'"]')[0].checked = true;
+        }
+        <?php if ($this->getIsFixedDepositOnly()): ?>
+            $('pbf-input-deposit').value = parseInt(pbf_selector_data['services'][service_id].deposit) / 10;
+        <?php endif; ?>
+        pbf_selector_recalculate();
+    }
+
+    function pbf_type_recalculate() {
+        var typewid = $("pbf-input-type");
+        var value = 0;
+        if (typewid) {
+            value = typewid.value;
+        }
+        $$(".pbf-term-hide").each(function (elem) {
+            elem.hide();
+        });
+        if ($('pbf-term-ruler-'+value).select('li').length != 1) {
+            $('pbf-term-slider-'+value).show();
+            $('pbf-term-ruler-'+value).show();
+        }
+        window["termSlider"+value].change();
+        pbf_term_recalculate();
+    }
+
+    function pbf_deposit(val) {
+        $("pbf-input-deposit").value = val/10;
+        depositSlider.change();
+        pbf_selector_recalculate();
+    }
+
+    function pbf_term(key, val, service_id) {
+        $("pbf-input-term-"+key).value = val;
+        window["termSlider"+key].change();
+        pbf_term_recalculate();
+    }
+
+    function pbf_type(val) {
+        if ($("pbf-input-type")) {
+            $("pbf-input-type").value = val
+            typeSlider.change();
+            pbf_type_recalculate();
+        }
+    }
+
+    function pbf_submit()
+    {
+        var service_id = $$('#paybyfinance input:checked[name=service]')[0].value;
+        var deposit = $("pbf-input-deposit").value * 10;
+        var postBody = 'service=' + service_id + '&deposit=' + deposit + '&enabled=1';
+        new Ajax.Request('<?php echo Mage::getUrl("paybyfinance/session/save") ?>', {method: 'post', postBody: postBody,
+            onSuccess: function() {
+                productAddToCartForm.submit(this);
+            },
+            onFailure: function() {
+                alert("Failed to select Finance");
+            }
+        });
+    }
+
+    function pbf_ajax_update()
+    {
+        new Ajax.Request('<?php echo Mage::getUrl("paybyfinance/selector/services") ?>', {
+            onSuccess: function(response) {
+                pbf_selector_data = response.responseJSON;
+                if (pbf_selector_user.service) {
+                    pbf_selector_data.service = pbf_selector_user.service;
+                }
+                pbf_full_reload();
+                pbf_selector_recalculate();
+            },
+            onFailure: function() {
+                alert("Failed to get finance services");
+            }
+        });
+    }
+
+    function pbf_redraw()
+    {
+        $$('#paybyfinance .healthy-slider').each(function(e) {
+            e.fire('pbf:redraw');
+        });
+    }
+
+    function pbf_update()
+    {
+        var service_id = $$('#paybyfinance input:checked[name=service]')[0].value;
+        if ($('paybyfinance-yes').checked) {
+            enabled = 1;
+        } else {
+            enabled = 0;
+        }
+
+        var deposit = $("pbf-input-deposit").value * 10;
+        var postBody = 'service=' + service_id + '&deposit=' + deposit + '&enabled=' + enabled;
+        new Ajax.Request('<?php echo Mage::getUrl("paybyfinance/session/save") ?>', {method: 'post', postBody: postBody,
+            onSuccess: function() {
+                if(document.getElementById('onestepcheckout-form')) {
+                    //if we're using onestepcheckout
+                    var url = '<?php echo $this->getUrl('onestepcheckout/ajax/set_methods_separate', array('_secure'=>true)); ?>';
+                    get_separate_save_methods_function(url)();
+                    if (enabled) {
+                        hideCountries();
+                    } else {
+                        showCountries();
+                    }
+                    Form.Element.enable('pbf-cart-btn');
+                } else if (document.getElementById('checkoutSteps')) {
+                    // OnePage checkout (Magento's default)
+                    steppable = ["shipping_method", "payment", "review"]
+                    var i = steppable.length;
+                    while (i--) {
+                        if (steppable[i] === checkout.currentStep) {
+                            shipping.save();
+                        }
+                    }
+                    Form.Element.disable('pbf-cart-btn');
+                } else {
+                    // Any other
+                    location.reload(true);
+                }
+            },
+            onFailure: function() {
+                alert("Failed to select Finance");
+            }
+        });
+    }
+
+    if ($('paybyfinance-yes')) {
+        if (pbf_selector_data.enabled == 1) {
+            $('paybyfinance-yes').checked = true;
+            $('paybyfinance-container').show();
+        } else {
+            $('pbf-cart-btn').hide();
+        }
+    }
+    if (pbf_selector_data.deposit !== null) {
+        $('pbf-input-deposit').value = pbf_selector_data.deposit / 10;
+    }
+
+    function pbf_reselect_service()
+    {
+        // Select previously selected service.
+        for (var key in pbf_selector_data.terms) {
+            if (pbf_selector_data.terms[key]['service_id'] == pbf_selector_data.service) {
+                sel = $('pbf-input-term');
+                if (sel) {
+                    sel.value = key;
+                }
+            }
+        }
+        pbf_selector_data.subterms.each(function(subterms, key){
+            subterms.each(function(val, sk) {
+                if (val['service_id'] == pbf_selector_data.service) {
+                    sel = $('pbf-input-term-'+key);
+                    if (sel) {
+                        sel.value = sk;
+                        pbf_selector_data.types.each(function(type, tkey) {
+                            if(val.type == type.type && $('pbf-input-type')) {
+                                $('pbf-input-type').value = tkey;
+                            }
+                        });
+                    }
+                }
+            });
+        })
+    }
+
+    function pbf_full_reload()
+    {
+        <?php if (!$this->getIsFixedDepositOnly()): ?>
+            depositSlider = new Healthy.Slider('pbf-deposit-slider', 'pbf-input-deposit', 'pbf-deposit-ruler', pbf_selector_recalculate);
+        <?php endif; ?>
+
+        inputType = '<div id="pbf-input-type-wrapper">';
+
+        if (pbf_selector_data.types.length >= 3) {
+            inputType += '<div class="healthy-slider-shorty clearfix">' +
+            '<input id="pbf-input-type" name="pbf-input-type" class="pbf-input-hidden" type="range" min="0" max="'+(pbf_selector_data.types.length-1)+'" value ="0"/>' +
+            '<div id="pbf-types-slider" class="healthy-slider"> <div class="slider-marker"></div> <div class="slider-pointer"></div> </div>' +
+            '<ul id="pbf-types-ruler" class="healthy-ruler">';
+            for (index = 0; index < pbf_selector_data.types.length; ++index) {
+                inputType += '<li style="width: '+(100/pbf_selector_data.types.length)+'" onclick="javascript:pbf_type('+index+');">'+selector_data.types[index].name+'</li>';
+            };
+            inputType += '</ul></div>';
+        } else if (pbf_selector_data.types.length == 2) {
+            inputType += '<div class="healthy-slider-toggle-wrapper">';
+            inputType += '<div class="healthy-slider-toggle clearfix">' +
+            '<input id="pbf-input-type" name="pbf-input-type" class="pbf-input-hidden" type="range" min="0" max="'+(pbf_selector_data.types.length-1)+'" value ="0"/>' +
+            '<div id="pbf-types-slider" class="healthy-slider"> <div class="slider-marker"></div> <div class="slider-pointer"></div> </div>' +
+            '<ul id="pbf-types-ruler" class="healthy-ruler ruler-toggle">';
+            for (index = 0; index < pbf_selector_data.types.length; ++index) {
+                inputType += '<li style="width: '+(100/pbf_selector_data.types.length)+'" onclick="javascript:pbf_type('+index+');" class="ruler-'+index+'"><div class="ruler-text ruler-text-'+index+'"><div class="ruler-tick">✓</div><span>'+pbf_selector_data.types[index].name+'</span></li>';
+            };
+            inputType += '</ul></div></div>';
+        }
+
+        inputType += '</div>';
+        $('pbf-input-type-wrapper').replace(inputType);
+
+        inputTerm = '<div id="pbf-input-term-wrapper">';
+        if (pbf_selector_data.terms.length > 1) {
+            inputTerm += '<input id="pbf-input-term" name="pbf-input-term"  class="pbf-input-hidden" type="range" min="0" max="'+(pbf_selector_data.terms.length - 1)+'" value ="0"/>';
+            pbf_selector_data.types.each(function(type, key){
+                inputTerm += '<input id="pbf-input-term-'+key+'" name="pbf-input-term-'+key+'" class="pbf-input-hidden" type="range" min="0" max="'+(pbf_selector_data.subterms[key].length-1)+'" value ="0"/>';
+                inputTerm += '<div id="pbf-term-slider-'+key+'" class="healthy-slider pbf-term-hide"> <div class="slider-marker"></div> <div class="slider-pointer"></div> </div>';
+                inputTerm += '<ul id="pbf-term-ruler-'+key+'" class="healthy-ruler pbf-term-hide">';
+                pbf_selector_data.subterms[key].each(function(term, tkey){
+                    inputTerm += '<li class="ruler ruler-'+tkey+'" style="width: '+100/pbf_selector_data.subterms[key].length+'%;" onclick="javascript:pbf_term('+key+', '+tkey+', '+term.service_id+');">'+term.term+'</li>';
+                });
+                inputTerm += '</ul>';
+            });
+        }
+
+        inputTerm += '</div>';
+        $('pbf-input-term-wrapper').replace(inputTerm);
+
+        pbf_reselect_service();
+
+        if (pbf_selector_data.terms.length > 1) {
+            pbf_selector_data.types.each(function(type, key){
+                if (!isNaN(key)) {
+                    window["termSlider"+key] = new Healthy.Slider('pbf-term-slider-'+key, 'pbf-input-term-'+key, 'pbf-term-ruler-'+key, pbf_term_recalculate);
+                }
+            });
+        }
+
+        if (pbf_selector_data.types.length > 1) {
+            typeSlider = new Healthy.Slider('pbf-types-slider', 'pbf-input-type', 'pbf-types-ruler', pbf_type_recalculate);
+        }
+
+        if (pbf_selector_data.service !== null) {
+            selector = $$('input[name="service"][value="'+pbf_selector_data.service+'"]');
+            if (selector.length > 0) {
+                selector[0].checked = true;
+            }
+        }
+
+        pbf_selector_recalculate();
+    }
+
+
+    document.observe('dom:loaded', function() {
+        $('paybyfinance').addClassName('skip-animation');
+        pbf_full_reload()
+        $('paybyfinance').removeClassName('skip-animation');
+    });
+
+</script>

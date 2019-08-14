@@ -1,0 +1,32 @@
+/* IE8 hacks */
+.healthy-slider {
+    display: none;
+}
+.healthy-ruler, .healthy-slider-toggle .healthy-ruler {
+    height: auto;
+}
+
+.paybyfinance-selector .healthy-slider-toggle-wrapper {
+    padding-top: 20px;
+}
+
+.healthy-ruler li, .healthy-slider-toggle .healthy-ruler li {
+    background: url(../images/paybyfinance/bullet.png) top center no-repeat;
+    margin-top: 0;
+    text-align: left;
+    float: none;
+    padding: 0 0 0 22px;
+    background-position: top left;
+    width: auto;
+}
+
+.healthy-slider-toggle .healthy-ruler li.ruler-0, .healthy-slider-toggle .healthy-ruler li.ruler-1 {
+    margin-left: 0;
+    margin-right: 0;
+    padding-right: 0;
+    text-align: left;
+}
+
+.paybyfinance-selector .healthy-ruler li.active {
+    background-position: left -100px;
+}

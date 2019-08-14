@@ -1,0 +1,16 @@
+{
+    "name": "OpenMageModuleFostering/HC_PayByFinance",
+    "type": "magento-module",
+    "license": "Healthy-Websites",
+    "homepage": "",
+    "description": "Hitachi Capital Pay By Finance",
+    "authors": [
+    {
+        "name": "Sandor Czettner",
+        "email": "support@healthywebsites.co.uk"
+    }
+],
+    "suggest": {
+        "magento-hackathon/magento-composer-installer": "*"
+    }
+}

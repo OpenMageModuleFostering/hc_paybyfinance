@@ -1,0 +1,41 @@
+<?php
+/**
+* Hitachi Capital Pay By Finance
+*
+* Hitachi Capital Pay By Finance Extension
+*
+* PHP version >= 5.3.*
+*
+* @category  HC
+* @package   PayByFinance
+* @author    Healthy Websites <support@healthywebsites.co.uk>
+* @copyright 2014 Hitachi Capital
+* @license   http://www.healthywebsites.co.uk/license.html HWS License
+* @link      http://www.healthywebsites.co.uk/
+*
+*/
+
+$_mode = $this->getMode();
+?>
+
+<html>
+    <head>
+        <title>Redirecting...</title>
+    </head>
+    <body>
+        <form action="<?php echo $this->getPostUrl(); ?>" method="post" name="redirect">
+            <?php foreach ($this->getPostContent() as $key => $value) { ?>
+                <?php if ($_mode == 'simulation'): ?>
+                    <br/> <label for="<?php echo htmlentities($key) ?>"><?php echo htmlentities($key) ?></label>
+                <?php endif; ?>
+                <input <?php echo $_mode=='simulation' ? '':'type="hidden"' ?> name="<?php echo htmlentities($key) ?>" value="<?php echo htmlentities($value) ?>" />
+            <?php } ?>
+            <input type="submit" value="Redirect" <?php if ($_mode != 'simulation'): ?>style="display: none;"<?php endif; ?>/>
+        </form>
+        <?php if ($_mode != 'simulation'): ?>
+            If your browser does not automatically redirect to Pay By Finance <a href="script:document.redirect.submit();">click here</a>
+            <script>document.redirect.submit();</script>
+        <?php endif; ?>
+    </body>
+</html>
+

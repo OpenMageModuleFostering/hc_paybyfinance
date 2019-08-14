@@ -1,0 +1,238 @@
+.paybyfinance-selector {
+    padding: 15px;
+    overflow: hidden;
+    margin-bottom: 20px;
+    box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+}
+
+.paybyfinance-selector .healthy-slider-shorty {
+    width: 60%;
+    margin: 0 auto;
+}
+
+.paybyfinance-selector .healthy-slider-toggle-wrapper {
+    background: #f4f4f4;
+}
+
+.healthy-slider-toggle-wrapper {
+    max-width: 480px;
+    margin: 0 auto;
+    padding-top: 10px;
+}
+
+.paybyfinance-selector .healthy-slider-toggle {
+    max-width: 160px;
+    width: 26%;
+    margin: 0 auto;
+    padding-bottom: 1px;
+}
+
+.paybyfinance-selector div {
+    box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+}
+
+.paybyfinance-selector .calculated {
+    color: #378AD6;
+    font-weight: bold;
+}
+
+.paybyfinance-selector .small {
+    font-size: 0.85em;
+}
+
+.paybyfinance-selector .paybyfinance-sum {
+    background: #f4f4f4;
+    border: 1px solid #ccc;
+    margin: 20px 0;
+    padding: 10px;
+}
+
+.paybyfinance-selector .paybyfinance-sum table {
+    width: 100%;
+}
+
+.pbf-input-hidden {
+    height: 0;
+    display: block;
+    margin: 0 auto;
+    -moz-opacity: 0.01;
+    opacity:.01;
+    filter: alpha(opacity=01);
+    position: relative;
+    width: 100%;
+    z-index: 1;
+}
+
+.paybyfinance-selector .services { display: none; }
+
+.healthy-ruler {
+    width: 100%;
+    clear: both;
+    display: block;
+    height: 58px;
+    margin-bottom: 20px;
+    box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+}
+
+.pbf-term-hide {
+    margin-bottom: 0px;
+}
+
+.healthy-ruler .ruler {
+    background: url(../images/paybyfinance/bullet.png) top center no-repeat;
+    padding-top: 20px;
+}
+
+.healthy-ruler li {
+    cursor:pointer;cursor:hand;
+    display: block;
+    float: left;
+    margin-top: 20px;
+    padding-top: 20px;
+    text-align: center;
+    width: 14.285714286%;
+}
+
+.healthy-ruler li.active {
+    background-position: center -100px;
+}
+
+.healthy-slider-toggle .healthy-ruler {
+    height: 0;
+}
+
+.healthy-slider-toggle .healthy-ruler li {
+    background: none;
+    margin-top: -40px;
+    padding-top: 0;
+    width: 100%;
+}
+
+.healthy-slider-toggle .healthy-ruler li.active {
+    color: #378AD6;
+}
+
+.healthy-slider-toggle .healthy-ruler li div div {
+    visibility:hidden;
+    display: inline;
+}
+
+.healthy-slider-toggle .healthy-ruler li.active div div {
+    visibility:visible;
+}
+
+.healthy-slider-toggle .healthy-ruler .ruler-text-0 {
+    text-align: right;
+    padding-right: 20px;
+}
+
+.healthy-slider-toggle .healthy-ruler .ruler-text-1 {
+    text-align: left;
+    padding-left: 15px;
+}
+
+.healthy-slider-toggle .healthy-ruler .ruler-text-1 span {
+    display: block;
+    margin-left: 15px;
+}
+
+.healthy-slider-toggle .healthy-ruler .ruler-text-1 .ruler-tick {
+    display: block;
+    float: left;
+}
+
+.healthy-slider-toggle .healthy-ruler li.ruler-0 {
+    margin-left: -100%;
+}
+
+.healthy-slider-toggle .healthy-ruler li.ruler-1 {
+    margin-left: 100%;
+    margin-right: -100%;
+}
+
+.cart-forms .paybyfinance-selector {
+    background-color: #fff;
+    border: 1px solid #cccccc;
+    margin-bottom: 20px;
+}
+
+.healthy-slider {
+    background: #cfcfcf;
+    border-radius: 30px;
+    -moz-border-radius: 30px;
+    -webkit-border-radius: 30px;
+    border: 17px solid #e9e9e9;
+    clear: both;
+    display: block;
+    box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    margin: 10px auto 0;
+    position: relative;
+    -moz-box-shadow:    inset -4px 4px 10px #999;
+    -webkit-box-shadow: inset -4px 4px 10px #999;
+    box-shadow:         inset -4px 4px 10px #999;
+    width: 100%;
+}
+
+.healthy-slider .slider-marker {
+    transition-property: width;
+    transition-duration: 0.15s;
+    background: url(../images/paybyfinance/progress.png);
+    border-radius: 13px;
+    -moz-border-radius: 13px;
+    -webkit-border-radius: 13px;
+    height: 22px;
+}
+
+.skip-animation .healthy-slider .slider-marker {
+    transition-property: none;
+}
+
+.paybyfinance-selector .healthy-slider-toggle .slider-marker
+{
+    background: none;
+}
+
+.healthy-slider .slider-pointer {
+    transition-property: left;
+    transition-duration: 0.15s;
+    background: url(../images/paybyfinance/pointer.png);
+    display: block;
+    height: 104px;
+            transform: scale(0.75, 0.75);
+       -moz-transform: scale(0.75, 0.75);
+        -ms-transform: scale(0.75, 0.75);
+    -webkit-transform: scale(0.75, 0.75);
+         -o-transform: scale(0.75, 0.75);
+    top: -34px;
+    position: absolute;
+    width: 82px;
+}
+
+.skip-animation .healthy-slider .slider-pointer {
+    transition-property: none;
+}
+
+.healthy-slider-toggle .slider-pointer {
+    background: url(../images/paybyfinance/pointer-toggle.png);
+}
+
+.pbf-footnote {
+    font-size: 0.85em;
+}
+
+.pbf-footnote p {
+    margin-bottom: 0.5em;
+}
+
+#pbf-error {
+    transition-property: height, opacity;
+    transition-duration: 0.35s;
+}
