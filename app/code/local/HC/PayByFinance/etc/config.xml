@@ -2,7 +2,7 @@
 <config>
     <modules>
         <HC_PayByFinance>
-            <version>2.0.0</version>
+            <version>2.0.3</version>
         </HC_PayByFinance>
     </modules>
     <global>
@@ -10,6 +10,11 @@
             <paybyfinance>
                 <class>HC_PayByFinance_Block</class>
             </paybyfinance>
+            <googleanalytics>
+                <rewrite>
+                    <ga>HC_PayByFinance_Block_GoogleAnalytics_Ga</ga>
+                </rewrite>
+            </googleanalytics>
         </blocks>
 
         <helpers>
@@ -131,6 +136,24 @@
                     </paybyfinance>
                 </observers>
             </paybyfinance_services_modified>
+            <controller_action_predispatch_checkout_cart_index>
+                <observers>
+                    <paybyfinance_checkout_cart_index>
+                        <type>singleton</type>
+                        <class>paybyfinance/sessionobserver</class>
+                        <method>predispatchCheckoutCartIndex</method>
+                    </paybyfinance_checkout_cart_index>
+                </observers>
+            </controller_action_predispatch_checkout_cart_index>
+            <controller_action_predispatch_checkout_onepage_index>
+                <observers>
+                    <paybyfinance_checkout_onepage_index>
+                        <type>singleton</type>
+                        <class>paybyfinance/sessionobserver</class>
+                        <method>predispatchCheckoutOnepageIndex</method>
+                    </paybyfinance_checkout_onepage_index>
+                </observers>
+            </controller_action_predispatch_checkout_onepage_index>
             <checkout_onepage_controller_success_action>
                 <observers>
                     <paybyfinance_checkout_success_action>
@@ -220,8 +243,84 @@
                     </paybyfinance_status_referred>
                 </observers>
             </paybyfinance_status_controller_referred>
-        </events>
+    <!-- Sagepay OrderStatus Initiator -->
+            <sales_order_payment_place_end>
+                <observers>
+                    <hc_sagepay_orderstatus_initiator>
+                        <class>paybyfinance/sagepayorderstatusobserver</class>
+                        <method>salesOrderPaymentPlaceEnd</method>
+                    </hc_sagepay_orderstatus_initiator>
+                </observers>
+            </sales_order_payment_place_end>
+            <sagepaysuite_get_configvalue_order_status>
+                <observers>
+                    <hc_sagepaysuite_get_configvalue_order_status>
+                        <type>singleton</type>
+                        <class>paybyfinance/sagepayorderstatusobserver</class>
+                        <method>sagepaysuiteGetConfigvalueOrderStatus</method>
+                    </hc_sagepaysuite_get_configvalue_order_status>
+                </observers>
+            </sagepaysuite_get_configvalue_order_status>
+    <!-- /Sagepay OrderStatus Initiator -->
 
+    <!-- Sagepay PreAuth -->
+            <sagepaysuite_get_configvalue_payment_action>
+                <observers>
+                    <hc_sagepaypreauth>
+                        <type>singleton</type>
+                        <class>paybyfinance/sagepaypreauthobserver</class>
+                        <method>getPaymentAction</method>
+                    </hc_sagepaypreauth>
+                </observers>
+            </sagepaysuite_get_configvalue_payment_action>
+            <sales_order_save_after>
+                <observers>
+                    <hc_sagepaypreauth>
+                        <type>singleton</type>
+                        <class>paybyfinance/sagepaypreauthobserver</class>
+                        <method>orderSaveAfter</method>
+                    </hc_sagepaypreauth>
+                </observers>
+            </sales_order_save_after>
+    <!-- /Sagepay PreAuth -->
+        </events>
+        <template>
+            <email>
+                <hc_paybyfinance_general_declined_email translate="label" module="paybyfinance">
+                    <label>New Order - PaybyFinance failed</label>
+                    <file>paybyfinance/order_declined.html</file>
+                    <type>html</type>
+                </hc_paybyfinance_general_declined_email>
+                <hc_paybyfinance_general_declined_email_guest translate="label" module="paybyfinance">
+                    <label>New Order for Guest  - PaybyFinance failed</label>
+                    <file>paybyfinance/order_declined_guest.html</file>
+                    <type>html</type>
+                </hc_paybyfinance_general_declined_email_guest>
+                <hc_paybyfinance_general_referred_email translate="label" module="paybyfinance">
+                    <label>New Order - PaybyFinance referred</label>
+                    <file>paybyfinance/order_referred.html</file>
+                    <type>html</type>
+                </hc_paybyfinance_general_referred_email>
+                <hc_paybyfinance_general_referred_email_guest translate="label" module="paybyfinance">
+                    <label>New Order for Guest  - PaybyFinance referred</label>
+                    <file>paybyfinance/order_referred_guest.html</file>
+                    <type>html</type>
+                </hc_paybyfinance_general_referred_email_guest>
+            </email>
+        </template>
+        <pdf>
+            <totals>
+                <financeamount>
+                    <title>Finance Amount</title>
+                    <source_field>finance_amount</source_field>
+                    <model>paybyfinance/sales_pdf_financeamount</model>
+                    <amount_prefix>-</amount_prefix>
+                    <font_size>7</font_size>
+                    <display_zero>0</display_zero>
+                    <sort_order>650</sort_order>
+                </financeamount>
+            </totals>
+        </pdf>
     </global>
 
     <frontend>
@@ -300,6 +399,10 @@
                 <wizard>0</wizard>
                 <display_in_results>0</display_in_results>
                 <invoice_finance>0</invoice_finance>
+                <declined_email>hc_paybyfinance_general_declined_email</declined_email>
+                <declined_email_guest>hc_paybyfinance_general_declined_email_guest</declined_email_guest>
+                <referred_email>hc_paybyfinance_general_referred_email</referred_email>
+                <referred_email_guest>hc_paybyfinance_general_referred_email_guest</referred_email_guest>
             </general>
             <order_status>
                 <accepted>finance_accepted</accepted>

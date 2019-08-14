@@ -8,10 +8,10 @@
  *
  * @category  HC
  * @package   PayByFinance
- * @author    Healthy Websites <support@healthywebsites.co.uk>
- * @copyright 2014 Healthy Websites
+ * @author    Cohesion Digital <support@cohesiondigital.co.uk>
+ * @copyright 2014 Cohesion Digital
  * @license   http://www.gnu.org/copyleft/gpl.html GPL License
- * @link      http://www.healthywebsites.co.uk/
+ * @link      http://www.cohesiondigital.co.uk/
  *
  */
 
@@ -22,9 +22,9 @@
  *
  * @category HC
  * @package  PayByFinance
- * @author   Healthy Websites <support@healthywebsites.co.uk>
+ * @author   Cohesion Digital <support@cohesiondigital.co.uk>
  * @license  http://www.gnu.org/copyleft/gpl.html GPL License
- * @link     http://www.healthywebsites.co.uk/
+ * @link     http://www.cohesiondigital.co.uk/
  */
 class HC_PayByFinance_Block_Adminhtml_Paybyfinance_Service_Edit
     extends Mage_Adminhtml_Block_Widget_Form_Container

@@ -8,10 +8,10 @@
  *
  * @category  HC
  * @package   PayByFinance
- * @author    Healthy Websites <support@healthywebsites.co.uk>
+ * @author    Cohesion Digital <support@cohesiondigital.co.uk>
  * @copyright 2014 Hitachi Capital
  * @license   http://www.gnu.org/copyleft/gpl.html GPL License
- * @link      http://www.healthywebsites.co.uk/
+ * @link      http://www.cohesiondigital.co.uk/
  *
  */
 
@@ -20,9 +20,9 @@
  *
  * @category HC
  * @package  PayByFinance
- * @author   Healthy Websites <support@healthywebsites.co.uk>
+ * @author   Cohesion Digital <support@cohesiondigital.co.uk>
  * @license  http://www.gnu.org/copyleft/gpl.html GPL License
- * @link     http://www.healthywebsites.co.uk/
+ * @link     http://www.cohesiondigital.co.uk/
  */
 class HC_PayByFinance_Model_Mysql4_Service_Collection
     extends Mage_Core_Model_Mysql4_Collection_Abstract
@@ -40,14 +40,23 @@ class HC_PayByFinance_Model_Mysql4_Service_Collection
     /**
      * Add collection filter by price
      *
-     * @param float $price Price.
+     * @param float $minimumAmount minimum amount that service should offer
+     *
+     * @param float $maximalAmount maximal amount that service should offer
      *
      * @return HC_PayByFinance_Model_Mysql4_Service_Collection
      */
-    public function addPriceFilter($price)
+    public function addPriceFilter($minimumAmount, $maximalAmount = null)
     {
-        $condition = array('lteq' => $price);
-        $this->addFieldToFilter('min_amount', $condition);
+        $this->addFieldToFilter('min_amount', array('lteq' => $minimumAmount));
+
+        if ($maximalAmount !== null) {
+            $this->addFieldToFilter(
+                array('max_amount', 'max_amount'), array(
+                    array('gteq' => $maximalAmount), array('null' => true)
+                )
+            );
+        }
 
         return $this;
     }

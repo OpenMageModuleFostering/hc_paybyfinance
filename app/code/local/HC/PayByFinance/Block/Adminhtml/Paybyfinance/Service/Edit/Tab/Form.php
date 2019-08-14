@@ -8,10 +8,10 @@
  *
  * @category  HC
  * @package   PayByFinance
- * @author    Healthy Websites <support@healthywebsites.co.uk>
- * @copyright 2014 Healthy Websites
+ * @author    Cohesion Digital <support@cohesiondigital.co.uk>
+ * @copyright 2014 Cohesion Digital
  * @license   http://www.gnu.org/copyleft/gpl.html GPL License
- * @link      http://www.healthywebsites.co.uk/
+ * @link      http://www.cohesiondigital.co.uk/
  *
  */
 
@@ -22,9 +22,9 @@
  *
  * @category HC
  * @package  PayByFinance
- * @author   Healthy Websites <support@healthywebsites.co.uk>
+ * @author   Cohesion Digital <support@cohesiondigital.co.uk>
  * @license  http://www.gnu.org/copyleft/gpl.html GPL License
- * @link     http://www.healthywebsites.co.uk/
+ * @link     http://www.cohesiondigital.co.uk/
  */
 class HC_PayByFinance_Block_Adminhtml_Paybyfinance_Service_Edit_Tab_Form
     extends Mage_Adminhtml_Block_Widget_Form
@@ -119,10 +119,18 @@ class HC_PayByFinance_Block_Adminhtml_Paybyfinance_Service_Edit_Tab_Form
 
         $fieldset->addField(
             'min_amount', 'text', array(
-                'label'     => $helper->__('Minimum Amount'),
+                'label'     => $helper->__('Minimum Loan Amount'),
                 'class'     => 'required-entry',
                 'required'  => true,
                 'name'      => 'min_amount',
+            )
+        );
+
+        $fieldset->addField(
+            'max_amount', 'text', array(
+                'label'     => $helper->__('Maximum Loan Amount'),
+                'required'  => false,
+                'name'      => 'max_amount',
             )
         );
 
@@ -154,6 +162,8 @@ class HC_PayByFinance_Block_Adminhtml_Paybyfinance_Service_Edit_Tab_Form
             )
         );
 
+
+
         if (Mage::getSingleton('adminhtml/session')->getServiceData()) {
             $form->setValues(
                 Mage::getSingleton('adminhtml/session')->getServiceData()
@@ -162,6 +172,22 @@ class HC_PayByFinance_Block_Adminhtml_Paybyfinance_Service_Edit_Tab_Form
         } elseif (Mage::registry('service_data')) {
             $form->setValues(Mage::registry('service_data')->getData());
         }
+
+        /*
+         Show defer_term only for type 25, 34, 35
+         */
+        $this->setChild(
+            'form_after', $this->getLayout()
+                ->createBlock('adminhtml/widget_form_element_dependence')
+                ->addFieldMap('type', 'type')
+                ->addFieldMap('defer_term', 'defer_term')
+                ->addFieldDependence(
+                    'defer_term', 'type',
+                    array((string) HC_PayByFinance_Model_Config_Source_Type::TYPE25,
+                        (string) HC_PayByFinance_Model_Config_Source_Type::TYPE34,
+                        (string) HC_PayByFinance_Model_Config_Source_Type::TYPE35)
+                )
+        );
 
         return parent::_prepareForm();
     }

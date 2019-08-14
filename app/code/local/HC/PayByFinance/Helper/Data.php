@@ -8,10 +8,10 @@
  *
  * @category  HC
  * @package   PayByFinance
- * @author    Healthy Websites <support@healthywebsites.co.uk>
+ * @author    Cohesion Digital <support@cohesiondigital.co.uk>
  * @copyright 2014 Hitachi Capital
  * @license   http://www.gnu.org/copyleft/gpl.html GPL License
- * @link      http://www.healthywebsites.co.uk/
+ * @link      http://www.cohesiondigital.co.uk/
  *
  */
 
@@ -22,9 +22,9 @@
  *
  * @category HC
  * @package  PayByFinance
- * @author   Healthy Websites <support@healthywebsites.co.uk>
+ * @author   Cohesion Digital <support@cohesiondigital.co.uk>
  * @license  http://www.gnu.org/copyleft/gpl.html GPL License
- * @link     http://www.healthywebsites.co.uk/
+ * @link     http://www.cohesiondigital.co.uk/
  */
 class HC_PayByFinance_Helper_Data extends Mage_Core_Helper_Data
 {
@@ -57,6 +57,12 @@ class HC_PayByFinance_Helper_Data extends Mage_Core_Helper_Data
     const XML_PATH_ERROR_NOTIFY_EMAIL    = 'hc_paybyfinance/account/erroremail';
     const XML_PATH_ACCOUNT_RETAILERNAME  = 'hc_paybyfinance/account/retailername';
     const XML_PATH_ACCOUNT_TRADINGNAME   = 'hc_paybyfinance/account/tradingname';
+    const XML_PATH_EMAIL_TEMPLATE        = 'hc_paybyfinance/general/declined_email';
+    const XML_PATH_EMAIL_TEMPLATE_GUEST  = 'hc_paybyfinance/general/declined_email_guest';
+    const XML_PATH_EMAIL_REFERRED        = 'hc_paybyfinance/general/referred_email';
+    const XML_PATH_EMAIL_REFERRED_GUEST  = 'hc_paybyfinance/general/referred_email_guest';
+    const XML_PATH_SAGEPAY_INITIATOR     = 'hc_paybyfinance/general/sagepay_status_initiator';
+    const XML_PATH_SAGEPAY_PREAUTH       = 'hc_paybyfinance/general/sagepay_preauth';
     const ERROR_LOG_PATH_LOG             = 'paybyfinance/paybyfinance-log.log';
     const ERROR_LOG_PATH_POST            = 'paybyfinance/paybyfinance-post.log';
     const ERROR_LOG_PATH_NOTIFICATION    = 'paybyfinance/paybyfinance-notification.log';
@@ -80,11 +86,14 @@ class HC_PayByFinance_Helper_Data extends Mage_Core_Helper_Data
         $session = Mage::getSingleton('paybyfinance/session');
         $json = array(
             'services' => array(),
+            'terms'    => array(),
             'amount'   => $amount,
             'enabled'  => $session->getData('enabled'),
             'service'  => $session->getData('service'),
             'deposit'  => $session->getData('deposit'),
         );
+        $types = array();
+
         foreach ($services as $service) {
             $types[$service->getType()] = $this->getTypeName((int) $service->getType());
             $json['terms'][] = array(
@@ -102,6 +111,7 @@ class HC_PayByFinance_Helper_Data extends Mage_Core_Helper_Data
                 'deposit' => $service->getDeposit(),
                 'fee' => $service->getFee(),
                 'min_amount' => $service->getMinAmount(),
+                'max_amount' => $service->getMaxAmount(),
                 'multiplier' => $service->getMultiplier(),
                 'rpm' => $service->getRpm(),
             );
@@ -160,6 +170,8 @@ class HC_PayByFinance_Helper_Data extends Mage_Core_Helper_Data
     public function isProductEligible($item)
     {
         $options = Mage::getSingleton('paybyfinance/config_source_catalog_product_finance');
+        $product = null;
+        $price = null;
 
         if ($item instanceof Mage_Sales_Model_Quote_Item
             || $item instanceof Mage_Sales_Model_Order_Item
@@ -169,6 +181,10 @@ class HC_PayByFinance_Helper_Data extends Mage_Core_Helper_Data
         } elseif ($item instanceof Mage_Catalog_Model_Product) {
             $product = $item;
             $price = Mage::helper('tax')->getPrice($product, $product->getFinalPrice(), true);
+        }
+
+        if ($product === null || $price === null) {
+            return false;
         }
 
         if ($product->getPaybyfinanceEnable() == $options::VALUES_DISABLE) {
@@ -396,5 +412,21 @@ class HC_PayByFinance_Helper_Data extends Mage_Core_Helper_Data
         $enabled = Mage::getStoreConfig(self::XML_PATH_ENABLED);
 
         return (boolean) $enabled;
+    }
+
+    /**
+     * Get order from request parameters
+     *
+     * @param array $parameters URL parameters
+     *
+     * @return Mage_Sales_Model_Order|null
+     */
+    public function getOrder($parameters)
+    {
+        if (isset($parameters['order_id'])) {
+            return Mage::getModel('sales/order')->load($parameters['order_id']);
+        }
+
+        return null;
     }
 }

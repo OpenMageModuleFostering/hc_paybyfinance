@@ -8,10 +8,10 @@
  *
  * @category  HC
  * @package   PayByFinance
- * @author    Healthy Websites <support@healthywebsites.co.uk>
+ * @author    Cohesion Digital <support@cohesiondigital.co.uk>
  * @copyright 2014 Hitachi Capital
  * @license   http://www.gnu.org/copyleft/gpl.html GPL License
- * @link      http://www.healthywebsites.co.uk/
+ * @link      http://www.cohesiondigital.co.uk/
  *
  */
 
@@ -20,13 +20,22 @@
  *
  * @category HC
  * @package  PayByFinance
- * @author   Healthy Websites <support@healthywebsites.co.uk>
+ * @author   Cohesion Digital <support@cohesiondigital.co.uk>
  * @license  http://www.gnu.org/copyleft/gpl.html GPL License
- * @link     http://www.healthywebsites.co.uk/
+ * @link     http://www.cohesiondigital.co.uk/
  */
 class HC_PayByFinance_Model_Post extends Mage_Core_Model_Abstract
 {
     private $_adapter;
+
+    /**
+     * Constructor, used to set current store.
+     */
+    public function __construct()
+    {
+        $this->setStoreId(Mage::app()->getStore()->getStoreId());
+        parent::__construct();
+    }
 
     /**
      * Set post adapter
@@ -87,27 +96,43 @@ class HC_PayByFinance_Model_Post extends Mage_Core_Model_Abstract
         $wizard = Mage::getStoreConfig($helper::XML_PATH_WIZARD);
 
         $fields = array(
-            'id' => trim((string) Mage::getStoreConfig($helper::XML_PATH_PBF_ACCOUNT_ID1)),
-            'id2' => trim((string) Mage::getStoreConfig($helper::XML_PATH_PBF_ACCOUNT_ID2)),
+            'id' => trim(
+                (string) Mage::getStoreConfig(
+                    $helper::XML_PATH_PBF_ACCOUNT_ID1, $this->getStoreId()
+                )
+            ),
+            'id2' => trim(
+                (string) Mage::getStoreConfig(
+                    $helper::XML_PATH_PBF_ACCOUNT_ID2, $this->getStoreId()
+                )
+            ),
             'ver' => $adapter::PROTOCOL_VERSION,
-            'eea' => Mage::getStoreConfig($helper::XML_PATH_ERROR_NOTIFY_EMAIL),
+            'eea' => Mage::getStoreConfig(
+                $helper::XML_PATH_ERROR_NOTIFY_EMAIL, $this->getStoreId()
+            ),
             'eurl' => Mage::getUrl(
-                'paybyfinance/checkout/response', array("_secure" => true)
+                'paybyfinance/checkout/response',
+                array('_secure' => true, 'store' => $this->getStoreId())
             ),
             'acceptedURL' => Mage::getUrl(
-                'paybyfinance/checkout/response', array("_secure" => true)
+                'paybyfinance/checkout/response',
+                array('_secure' => true, 'store' => $this->getStoreId())
             ),
             'referredURL' => Mage::getUrl(
-                'paybyfinance/checkout/response', array("_secure" => true)
+                'paybyfinance/checkout/response',
+                array('_secure' => true, 'store' => $this->getStoreId())
             ),
             'declinedURL' => Mage::getUrl(
-                'paybyfinance/checkout/response', array("_secure" => true)
+                'paybyfinance/checkout/response',
+                array('_secure' => true, 'store' => $this->getStoreId())
             ),
             'toStoreURL' => Mage::getUrl(
-                'paybyfinance/checkout/response', array("_secure" => true)
+                'paybyfinance/checkout/response',
+                array('_secure' => true, 'store' => $this->getStoreId())
             ),
             'notificationURL' => Mage::getUrl(
-                'paybyfinance/notification', array("_secure" => true)
+                'paybyfinance/notification',
+                array('_secure' => true, 'store' => $this->getStoreId())
             ),
             'address_checked' => $addressChecked == "1" ? 'Y' : 'N',
             'wizard' => $wizard == "1" ? 'new' : 'old',
@@ -130,8 +155,16 @@ class HC_PayByFinance_Model_Post extends Mage_Core_Model_Abstract
         $adapter = $this->_adapter;
 
         $fields = array(
-            'id' => trim((string) Mage::getStoreConfig($helper::XML_PATH_PBF_ACCOUNT_ID1)),
-            'id2' => trim((string) Mage::getStoreConfig($helper::XML_PATH_PBF_ACCOUNT_ID2)),
+            'id' => trim(
+                (string) Mage::getStoreConfig(
+                    $helper::XML_PATH_PBF_ACCOUNT_ID1, $this->getStoreId()
+                )
+            ),
+            'id2' => trim(
+                (string) Mage::getStoreConfig(
+                    $helper::XML_PATH_PBF_ACCOUNT_ID2, $this->getStoreId()
+                )
+            )
         );
         $data = array_merge($data, $fields);
 

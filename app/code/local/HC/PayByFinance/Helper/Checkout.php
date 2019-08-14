@@ -8,10 +8,10 @@
  *
  * @category  HC
  * @package   PayByFinance
- * @author    Healthy Websites <support@healthywebsites.co.uk>
+ * @author    Cohesion Digital <support@cohesiondigital.co.uk>
  * @copyright 2014 Hitachi Capital
  * @license   http://www.gnu.org/copyleft/gpl.html GPL License
- * @link      http://www.healthywebsites.co.uk/
+ * @link      http://www.cohesiondigital.co.uk/
  *
  */
 
@@ -22,9 +22,9 @@
  *
  * @category HC
  * @package  PayByFinance
- * @author   Healthy Websites <support@healthywebsites.co.uk>
+ * @author   Cohesion Digital <support@cohesiondigital.co.uk>
  * @license  http://www.gnu.org/copyleft/gpl.html GPL License
- * @link     http://www.healthywebsites.co.uk/
+ * @link     http://www.cohesiondigital.co.uk/
  */
 class HC_PayByFinance_Helper_Checkout extends Mage_Core_Helper_Data
 {
@@ -39,6 +39,7 @@ class HC_PayByFinance_Helper_Checkout extends Mage_Core_Helper_Data
      *
      * @return string Redirect URL.
      */
+    // @codingStandardsIgnoreStart -- Cyclomatic complexity, consider refactoring this
     public function processReturnStatus($order, $parameters)
     {
         $helper = Mage::helper('paybyfinance');
@@ -70,9 +71,9 @@ class HC_PayByFinance_Helper_Checkout extends Mage_Core_Helper_Data
         $message = $this->getParamText('id', 'id', $parameters);
         $message .= $this->getParamText('id2', 'id2', $parameters);
         $message .= "\nFinance: " . $parameters['decision'];
-        $message .= "\nApplication: " . $parameters['applicationNo'];
-        $message .= "\nAuthorization: " . $parameters['authorisationcode'];
-        $message .= "\nSURL: " . $parameters['sourceurl'];
+        $message .= "\nApplication: " . isset($parameters['applicationNo'])?$parameters['applicationNo']:"N/A";
+        $message .= "\nAuthorization: " . isset($parameters['authorisationcode'])?$parameters['authorisationcode']:"N/A";
+        $message .= "\nSURL: " . isset($parameters['sourceurl'])?$parameters['sourceurl']:"N/A";
         $message .= $this->getParamText('Errreason', 'Reason', $parameters);
         $message .= $this->getParamText('Errtext', 'Message', $parameters);
 
@@ -81,11 +82,29 @@ class HC_PayByFinance_Helper_Checkout extends Mage_Core_Helper_Data
         if ($financeStatus == 'ACCEPT') {
             $financeStatus = 'ACCEPTED';
         }
+
+        if ($parameters['decision'] == 'ACCEPTED') {
+            $order->sendNewOrderEmail();
+            $helper->log(
+                'New order email has been sent for order: ' . $order->getIncrementId(),
+                'post'
+            );
+        }
+
         if ($parameters['decision'] != $financeStatus // Don't change status if not modified.
             && !$order->getPaybyfinanceEnable() // Don't change status on second return.
         ) {
             $order->setState($state, $status);
             $order->setFinanceStatus($parameters['decision']);
+            if ($parameters['decision'] != 'ACCEPTED') {
+                $orderHelper = Mage::helper('paybyfinance/order');
+                $orderHelper->sendFailedEmail($order, $parameters['decision']);
+                $helper->log(
+                    'Failed order email has been sent for order: ' . $order->getIncrementId() . "\n"
+                    . 'Finance status: ' . $parameters['decision'],
+                    'post'
+                );
+            }
         }
         $order->addStatusHistoryComment(nl2br(trim($message), false));
         $order->setPaybyfinanceEnable(true);
@@ -93,6 +112,7 @@ class HC_PayByFinance_Helper_Checkout extends Mage_Core_Helper_Data
 
         return $redirectUrl;
     }
+    // @codingStandardsIgnoreEnd
 
     /**
      * Get parmeter by it's id with text and semicolon.
@@ -128,9 +148,11 @@ class HC_PayByFinance_Helper_Checkout extends Mage_Core_Helper_Data
         $message = 'id: ' . $parameters['id'];
         $message .= ' id2: ' . $parameters['id2'];
         $message .= "\n" . $parameters['decision'];
-        $message .= "\nApplication: " . $parameters['applicationNo'];
-        $message .= "\nAuthorization: " . $parameters['authorisationcode'];
-        $message .= "\nSURL: " . $parameters['sourceurl'];
+        $message .= "\nApplication: " .
+            isset($parameters['applicationNo'])?$parameters['applicationNo']:"N/A";
+        $message .= "\nAuthorization: " .
+            isset($parameters['authorisationcode'])?$parameters['authorisationcode']:"N/A";
+        $message .= "\nSURL: " . isset($parameters['sourceurl'])?$parameters['sourceurl']:"N/A";
         $message .= "\nReason: " . $parameters['Errreason'];
         $message .= "\nMessage: " . $parameters['Errtext'];
 

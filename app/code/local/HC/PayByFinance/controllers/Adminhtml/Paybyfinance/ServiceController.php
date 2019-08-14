@@ -8,10 +8,10 @@
  *
  * @category  HC
  * @package   PayByFinance
- * @author    Healthy Websites <support@healthywebsites.co.uk>
+ * @author    Cohesion Digital <support@cohesiondigital.co.uk>
  * @copyright 2014 Hitachi Capital
  * @license   http://www.gnu.org/copyleft/gpl.html GPL License
- * @link      http://www.healthywebsites.co.uk/
+ * @link      http://www.cohesiondigital.co.uk/
  *
  */
 
@@ -22,9 +22,9 @@
  *
  * @category HC
  * @package  PayByFinance
- * @author   Healthy Websites <support@healthywebsites.co.uk>
+ * @author   Cohesion Digital <support@cohesiondigital.co.uk>
  * @license  http://www.gnu.org/copyleft/gpl.html GPL License
- * @link     http://www.healthywebsites.co.uk/
+ * @link     http://www.cohesiondigital.co.uk/
  */
 class HC_PayByFinance_Adminhtml_Paybyfinance_ServiceController
     extends Mage_Adminhtml_Controller_Action
@@ -149,8 +149,16 @@ class HC_PayByFinance_Adminhtml_Paybyfinance_ServiceController
                     ->setMinAmount($postData['min_amount'])
                     ->setMultiplier($postData['multiplier'])
                     ->setRpm($postData['rpm'])
-                    ->setStoreId($storeId)
-                    ->save();
+                    ->setStoreId($storeId);
+
+
+                if ($postData['max_amount'] === '') {
+                    $serviceModel->setMaxAmount(null); //clear the value
+                } else {
+                    $serviceModel->setMaxAmount($postData['max_amount']);
+                }
+
+                $serviceModel->save();
 
                 Mage::getSingleton('adminhtml/session')->addSuccess(
                     Mage::helper('paybyfinance')

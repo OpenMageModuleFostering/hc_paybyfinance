@@ -8,10 +8,10 @@
  *
  * @category  HC
  * @package   PayByFinance
- * @author    Healthy Websites <support@healthywebsites.co.uk>
+ * @author    Cohesion Digital <support@cohesiondigital.co.uk>
  * @copyright 2014 Hitachi Capital
  * @license   http://www.gnu.org/copyleft/gpl.html GPL License
- * @link      http://www.healthywebsites.co.uk/
+ * @link      http://www.cohesiondigital.co.uk/
  *
  */
 
@@ -22,9 +22,9 @@
  *
  * @category HC
  * @package  PayByFinance
- * @author   Healthy Websites <support@healthywebsites.co.uk>
+ * @author   Cohesion Digital <support@cohesiondigital.co.uk>
  * @license  http://www.gnu.org/copyleft/gpl.html GPL License
- * @link     http://www.healthywebsites.co.uk/
+ * @link     http://www.cohesiondigital.co.uk/
  */
 class HC_PayByFinance_Model_Calculator extends Varien_Object
 {
@@ -93,14 +93,14 @@ class HC_PayByFinance_Model_Calculator extends Varien_Object
         if ($service === null) {
             $service = $this->getService();
         }
-        // No rounding issues, rounding always down.
-        $monthlyPayment = floor(($amount * $service->getMultiplier()) * 100) / 100;
+        // rounding always up for interest bearing services.
+        $monthlyPayment = ceil(($amount * $service->getMultiplier()) * 100) / 100;
 
         return $monthlyPayment;
     }
 
     /**
-     * Calculating monthly payments (Interst Free, type=32)
+     * Calculating monthly payments (Interest Free, type=32)
      *
      * @param float                         $amount  Credit amount
      * @param HC_PayByFinance_Model_Service $service Service
@@ -185,6 +185,9 @@ class HC_PayByFinance_Model_Calculator extends Varien_Object
             $financeAmount = $price - $depositAmount;
             $financeAmount = intval((string) ($financeAmount * 100)) / 100;
             if ($financeAmount < $service->getMinAmount()) {
+                continue;
+            }
+            if (($service->getMaxAmount() !== null) && $financeAmount > $service->getMaxAmount()) {
                 continue;
             }
 

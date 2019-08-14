@@ -8,10 +8,10 @@
  *
  * @category  HC
  * @package   PayByFinance
- * @author    Healthy Websites <support@healthywebsites.co.uk>
+ * @author    Cohesion Digital <support@cohesiondigital.co.uk>
  * @copyright 2014 Hitachi Capital
  * @license   http://www.gnu.org/copyleft/gpl.html GPL License
- * @link      http://www.healthywebsites.co.uk/
+ * @link      http://www.cohesiondigital.co.uk/
  *
  */
 
@@ -22,9 +22,9 @@
  *
  * @category HC
  * @package  PayByFinance
- * @author   Healthy Websites <support@healthywebsites.co.uk>
+ * @author   Cohesion Digital <support@cohesiondigital.co.uk>
  * @license  http://www.gnu.org/copyleft/gpl.html GPL License
- * @link     http://www.healthywebsites.co.uk/
+ * @link     http://www.cohesiondigital.co.uk/
  */
 class HC_PayByFinance_CheckoutController extends Mage_Core_Controller_Front_Action
 {
@@ -124,6 +124,14 @@ class HC_PayByFinance_CheckoutController extends Mage_Core_Controller_Front_Acti
             );
             $productCount++;
         }
+        $deferredServicesProperties = array();
+        if (HC_PayByFinance_Model_Config_Source_Type::isDeferredType(
+            $service->getType()
+        )
+        ) {
+            $deferredServicesProperties['cdperiod'] = $service->getDeferTerm();
+        }
+
 
         $post->setQuoteData(
             array_merge(
@@ -157,7 +165,8 @@ class HC_PayByFinance_CheckoutController extends Mage_Core_Controller_Front_Acti
                     'postcode' => $address->getPostcode(),
                     'email' => $order->getCustomerEmail(),
                 ),
-                $productsInForm
+                $productsInForm,
+                $deferredServicesProperties
             )
         );
 
@@ -193,6 +202,7 @@ class HC_PayByFinance_CheckoutController extends Mage_Core_Controller_Front_Acti
         $coHelper = Mage::helper('paybyfinance/checkout');
         $helper = Mage::helper('paybyfinance');
         $helper->log("Response: \n" . $helper->arrayDump($parameters), 'post');
+        $order = null;
 
         if (array_key_exists('ro', $parameters)) {
             $order = Mage::getModel('sales/order')->load($parameters['ro'], 'increment_id');
@@ -208,7 +218,7 @@ class HC_PayByFinance_CheckoutController extends Mage_Core_Controller_Front_Acti
             $redirectUrl = $coHelper->processReturnStatus($order, $parameters);
         }
 
-        $this->_redirect($redirectUrl);
+        $this->_redirect($redirectUrl, array('order_id'=>$order->getId()));
     }
 
 }

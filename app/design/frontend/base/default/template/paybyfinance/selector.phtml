@@ -8,10 +8,10 @@
 *
 * @category  HC
 * @package   PayByFinance
-* @author    Healthy Websites <support@healthywebsites.co.uk>
+* @author    Cohesion Digital <support@cohesiondigital.co.uk>
 * @copyright 2014 Hitachi Capital
 * @license   http://www.gnu.org/copyleft/gpl.html GPL License
-* @link      http://www.healthywebsites.co.uk/
+* @link      http://www.cohesiondigital.co.uk/
 *
 */
 
@@ -64,7 +64,7 @@ $_secure = $this->getRequest()->isSecure();
         <div id="pbf-input-type-wrapper">
         </div>
 
-        <p>I would like to pay over <span id="pbf-term-months" class="calculated"></span> months</p>
+        <p>I would like to pay over <span id="pbf-term-months" class="calculated"></span> months<span id="pbf-buy-now-pay-later-defered-part">, with the first payment deferred for <span id="pbf-defer-term-months" class="calculated"></span> months</span></p>
 
         <div id="pbf-input-term-wrapper">
         </div>
@@ -194,6 +194,8 @@ $_secure = $this->getRequest()->isSecure();
         $('pbf-deposit').update(value + "% = £" + currencyFormat(deposit));
         $('pbf-totalcredit').update("£" + currencyFormat(credit));
         $('pbf-term').update(service.term);
+        $('pbf-defer-term-months').update(service.defer_term);
+        (service.defer_term != 0) ? $('pbf-buy-now-pay-later-defered-part').show() : $('pbf-buy-now-pay-later-defered-part').hide();
         $('pbf-term-months').update(service.term);
         $('pbf-monthly-payment').update('£' + currencyFormat(monthly));
         $('pbf-interestpayable').update('£' + currencyFormat(interestpayable));
@@ -226,7 +228,17 @@ $_secure = $this->getRequest()->isSecure();
             if ($('pbf-cart-btn')) {
                 Form.Element.disable('pbf-cart-btn');
             }
-        } else {
+        } else if (!(service.max_amount === undefined || service.max_amount === null) && (credit > service.max_amount)) {
+            $('pbf-error-msg').update("The maximum Finance Amount is £"+ currencyFormat(service.max_amount));
+            $('pbf-error').setStyle({height: 45+"px", opacity: 0.99});
+            $('pbf-error-msg').show();
+            if ($('pbf-productcart-btn')) {
+                Form.Element.disable('pbf-productcart-btn');
+            }
+            if ($('pbf-cart-btn')) {
+                Form.Element.disable('pbf-cart-btn');
+            }
+        }  else {
             $('pbf-error-msg').update(null);
             $('pbf-error').setStyle({height: 0, opacity: 0});
             $('pbf-error-msg').hide();
@@ -448,7 +460,7 @@ $_secure = $this->getRequest()->isSecure();
             '<div id="pbf-types-slider" class="healthy-slider"> <div class="slider-marker"></div> <div class="slider-pointer"></div> </div>' +
             '<ul id="pbf-types-ruler" class="healthy-ruler">';
             for (index = 0; index < pbf_selector_data.types.length; ++index) {
-                inputType += '<li style="width: '+(100/pbf_selector_data.types.length)+'%" onclick="javascript:pbf_type('+index+');" class="ruler ruler-'+index+'">'+selector_data.types[index].name+'</li>';
+                inputType += '<li style="width: '+(100/pbf_selector_data.types.length)+'%" onclick="javascript:pbf_type('+index+');" class="ruler ruler-'+index+'">'+pbf_selector_data.types[index].name+'</li>';
             };
             inputType += '</ul></div>';
         } else if (pbf_selector_data.types.length == 2) {

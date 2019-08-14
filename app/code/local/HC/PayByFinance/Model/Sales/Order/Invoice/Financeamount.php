@@ -8,10 +8,10 @@
  *
  * @category  HC
  * @package   PayByFinance
- * @author    Healthy Websites <support@healthywebsites.co.uk>
+ * @author    Cohesion Digital <support@cohesiondigital.co.uk>
  * @copyright 2014 Hitachi Capital
  * @license   http://www.gnu.org/copyleft/gpl.html GPL License
- * @link      http://www.healthywebsites.co.uk/
+ * @link      http://www.cohesiondigital.co.uk/
  *
  */
 
@@ -22,13 +22,18 @@
  *
  * @category HC
  * @package  PayByFinance
- * @author   Healthy Websites <support@healthywebsites.co.uk>
+ * @author   Cohesion Digital <support@cohesiondigital.co.uk>
  * @license  http://www.gnu.org/copyleft/gpl.html GPL License
- * @link     http://www.healthywebsites.co.uk/
+ * @link     http://www.cohesiondigital.co.uk/
  */
 class HC_PayByFinance_Model_Sales_Order_Invoice_Financeamount
     extends Mage_Sales_Model_Order_Invoice_Total_Abstract
 {
+
+    protected $_collectMethods = array(
+        'paypal_express'
+    );
+
     /**
      * collect
      *
@@ -57,7 +62,11 @@ class HC_PayByFinance_Model_Sales_Order_Invoice_Financeamount
         $invoice->setFinanceAmount($amount);
         $invoice->setBaseFinanceAmount($order->getBaseFinanceAmount());
 
-        if (Mage::getStoreConfig($helper::XML_PATH_INVOICE_FINANCE)) {
+        $paymentMethodCode = $order->getPayment()->getMethodInstance()->getCode();
+
+        if (Mage::getStoreConfig($helper::XML_PATH_INVOICE_FINANCE)
+            || in_array($paymentMethodCode, $this->_collectMethods)
+        ) {
             $invoice->setGrandTotal(
                 $invoice->getGrandTotal() - abs($invoice->getFinanceAmount())
             );

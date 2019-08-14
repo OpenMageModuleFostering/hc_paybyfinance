@@ -8,10 +8,10 @@
  *
  * @category  HC
  * @package   PayByFinance
- * @author    Healthy Websites <support@healthywebsites.co.uk>
+ * @author    Cohesion Digital <support@cohesiondigital.co.uk>
  * @copyright 2014 Hitachi Capital
  * @license   http://www.gnu.org/copyleft/gpl.html GPL License
- * @link      http://www.healthywebsites.co.uk/
+ * @link      http://www.cohesiondigital.co.uk/
  *
  */
 
@@ -22,9 +22,9 @@
  *
  * @category HC
  * @package  PayByFinance
- * @author   Healthy Websites <support@healthywebsites.co.uk>
+ * @author   Cohesion Digital <support@cohesiondigital.co.uk>
  * @license  http://www.gnu.org/copyleft/gpl.html GPL License
- * @link     http://www.healthywebsites.co.uk/
+ * @link     http://www.cohesiondigital.co.uk/
  */
 class HC_PayByFinance_Helper_Notification extends Mage_Core_Helper_Data
 {
@@ -90,6 +90,14 @@ class HC_PayByFinance_Helper_Notification extends Mage_Core_Helper_Data
             $message = 'Status Unknown: "' . $parameters['status'].'"';
         } else {
             $message = $this->statuses[$status];
+        }
+
+        if ($status == 'PAID' && $orderState != 'complete') {
+            /* There's a race condition when Hitachi sends PAID notification the same
+               time we send shipment (inbound) notification. They will re-try later. */
+            throw new Exception(
+                'PAID Notification received too early for order: ' . $order->getId(), 1
+            );
         }
 
         if (in_array($status, $this->cancelStatus)) {
@@ -207,6 +215,8 @@ class HC_PayByFinance_Helper_Notification extends Mage_Core_Helper_Data
      * @param array $parameters request parameters
      *
      * @return array Array of state and status
+     *
+     * @throws Exception
      */
     protected function getOrderStateAndStatus($parameters)
     {
@@ -245,6 +255,10 @@ class HC_PayByFinance_Helper_Notification extends Mage_Core_Helper_Data
             case 'FATAL_ERROR':
                 $orderStatus = Mage::getStoreConfig($helper::XML_PATH_STATUS_ERROR);
                 break;
+            default:
+                $message = "Unknown status value:>" . $status . "<";
+                Mage::helper('paybyfinance')->log($message, 'notification');
+                throw new Exception($message);
         }
 
         return array($orderState, $orderStatus);

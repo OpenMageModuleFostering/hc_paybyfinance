@@ -8,10 +8,10 @@
  *
  * @category  HC
  * @package   PayByFinance
- * @author    Healthy Websites <support@healthywebsites.co.uk>
+ * @author    Cohesion Digital <support@cohesiondigital.co.uk>
  * @copyright 2014 Hitachi Capital
  * @license   http://www.gnu.org/copyleft/gpl.html GPL License
- * @link      http://www.healthywebsites.co.uk/
+ * @link      http://www.cohesiondigital.co.uk/
  *
  */
 
@@ -22,9 +22,9 @@
  *
  * @category HC
  * @package  PayByFinance
- * @author   Healthy Websites <support@healthywebsites.co.uk>
+ * @author   Cohesion Digital <support@cohesiondigital.co.uk>
  * @license  http://www.gnu.org/copyleft/gpl.html GPL License
- * @link     http://www.healthywebsites.co.uk/
+ * @link     http://www.cohesiondigital.co.uk/
  */
 class HC_PayByFinance_Block_Status extends Mage_Core_Block_Template
 {
@@ -74,9 +74,7 @@ class HC_PayByFinance_Block_Status extends Mage_Core_Block_Template
         }
 
         $block = Mage::getModel('cms/block')->load($id);
-        $this->_order = Mage::getModel('sales/order')->load(
-            Mage::getSingleton('paybyfinance/session')->getData('order_id')
-        );
+        $this->_order = $helper->getOrder($this->getRequest()->getParams());
         $helper = Mage::helper('cms');
         $processor = $helper->getBlockTemplateProcessor();
         $processor->setVariables(
@@ -97,19 +95,23 @@ class HC_PayByFinance_Block_Status extends Mage_Core_Block_Template
      */
     private function getOrderIdText()
     {
-        if ($this->canPrint()) {
-            $url = $this->getUrl(
-                'sales/order/view/',
-                array(
-                    'order_id' => $this->_order->getId(),
-                    '_secure' => true
-                )
-            );
+        if ($this->_order) {
+            if ($this->canPrint()) {
+                $url = $this->getUrl(
+                    'sales/order/view/',
+                    array(
+                        'order_id' => $this->_order->getId(),
+                        '_secure' => true
+                    )
+                );
 
-            return $this->__('<a href="%s">%s</a>', $url, $this->_order->getIncrementId());
+                return $this->__('<a href="%s">%s</a>', $url, $this->_order->getIncrementId());
+            }
+
+            return $this->_order->getIncrementId();
         }
 
-        return $this->_order->getIncrementId();
+        return $this->__("Order Id was not provided");
     }
 
     /**
@@ -119,9 +121,6 @@ class HC_PayByFinance_Block_Status extends Mage_Core_Block_Template
      */
     private function canPrint()
     {
-        if (!$this->_order) {
-            return false;
-        }
         if (in_array(
             $this->_order->getState(),
             Mage::getSingleton('sales/order_config')->getInvisibleOnFrontStates()
@@ -131,5 +130,4 @@ class HC_PayByFinance_Block_Status extends Mage_Core_Block_Template
 
         return Mage::getSingleton('customer/session')->isLoggedIn();
     }
-
 }

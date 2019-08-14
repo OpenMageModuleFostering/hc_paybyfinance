@@ -8,10 +8,10 @@
  *
  * @category  HC
  * @package   PayByFinance
- * @author    Healthy Websites <support@healthywebsites.co.uk>
+ * @author    Cohesion Digital <support@cohesiondigital.co.uk>
  * @copyright 2014 Hitachi Capital
  * @license   http://www.gnu.org/copyleft/gpl.html GPL License
- * @link      http://www.healthywebsites.co.uk/
+ * @link      http://www.cohesiondigital.co.uk/
  *
  */
 
@@ -63,6 +63,7 @@ CREATE TABLE {$this->getTable('paybyfinance_service')} (
   `min_amount` decimal(9,4) NOT NULL default '0',
   `multiplier` double(10,8) NOT NULL default '0',
   `rpm` double(10,8) NOT NULL default '0',
+  `max_amount` decimal(9,4) NULL,
   PRIMARY KEY (`service_id`),
   CONSTRAINT `FK_paybyfinance_serice_core_store_store_id` FOREIGN KEY(`store_id`)
         REFERENCES `{$this->getTable('core_store')}` (`store_id`)
@@ -129,7 +130,6 @@ $service->setName('Interest free')
 
 // Blocks.
 $blocks = array(
-    'information' => 'Finance Information',
     'accepted' => 'Finance Accepted',
     'referred' => 'Finance Referred',
     'declined' => 'Finance Declined',
@@ -247,5 +247,18 @@ $cmsPage = array (
 );
 
 Mage::getModel('cms/page')->setData($cmsPage)->save();
+
+// @codingStandardsIgnoreStart
+$configValuesMap = array(
+    'hc_paybyfinance/general/referred_email'       => 'hc_paybyfinance_general_referred_email',
+    'hc_paybyfinance/general/referred_email_guest' => 'hc_paybyfinance_general_referred_email_guest',
+    'hc_paybyfinance/general/declined_email'       => 'hc_paybyfinance_general_declined_email',
+    'hc_paybyfinance/general/declined_email_guest' => 'hc_paybyfinance_general_declined_email_guest',
+);
+// @codingStandardsIgnoreEnd
+
+foreach ($configValuesMap as $configPath=>$configValue) {
+    $resinstaller->setConfigData($configPath, $configValue);
+}
 
 $installer->endSetup();

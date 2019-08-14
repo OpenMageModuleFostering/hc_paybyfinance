@@ -1,13 +1,13 @@
 {
     "name": "OpenMageModuleFostering/HC_PayByFinance",
     "type": "magento-module",
-    "license": "Healthy-Websites",
+    "license": "Cohesion-Digital",
     "homepage": "",
     "description": "Hitachi Capital PaybyFinance",
     "authors": [
     {
         "name": "Sandor Czettner",
-        "email": "support@healthywebsites.co.uk"
+        "email": "support@cohesiondigital.co.uk"
     }
 ],
     "suggest": {

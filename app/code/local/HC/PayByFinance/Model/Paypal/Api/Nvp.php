@@ -8,10 +8,10 @@
  *
  * @category  HC
  * @package   PayByFinance
- * @author    Healthy Websites <support@healthywebsites.co.uk>
+ * @author    Cohesion Digital <support@cohesiondigital.co.uk>
  * @copyright 2014 Hitachi Capital
  * @license   http://www.gnu.org/copyleft/gpl.html GPL License
- * @link      http://www.healthywebsites.co.uk/
+ * @link      http://www.cohesiondigital.co.uk/
  *
  */
 
@@ -20,9 +20,9 @@
  *
  * @category HC
  * @package  PayByFinance
- * @author   Healthy Websites <support@healthywebsites.co.uk>
+ * @author   Cohesion Digital <support@cohesiondigital.co.uk>
  * @license  http://www.gnu.org/copyleft/gpl.html GPL License
- * @link     http://www.healthywebsites.co.uk/
+ * @link     http://www.cohesiondigital.co.uk/
  */
 class HC_PayByFinance_Model_Paypal_Api_Nvp extends Mage_Paypal_Model_Api_Nvp
 {
@@ -38,17 +38,18 @@ class HC_PayByFinance_Model_Paypal_Api_Nvp extends Mage_Paypal_Model_Api_Nvp
     public function call($methodName, array $request)
     {
         if (isset($request['PAYMENTACTION'])
-            && $request['PAYMENTACTION'] == 'Authorization'
+            && in_array($methodName, array('SetExpressCheckoutArray'))
             && isset($request['ITEMAMT'])
-            && isset($request['TOKEN'])
         ) {
             $amt = floatval($request['ITEMAMT']);
             $order = $this->_cart->getSalesEntity();
-            $financed = ($order->getFinanceAmount());
+            $financed = $order->getFinanceAmount();
+            if (!$financed) {
+                $financed = $order->getShippingAddress()->getFinanceAmount();
+            }
             $itemamt = $amt + $financed;
             $request['ITEMAMT'] = sprintf('%.2F', $itemamt);
         }
-
         return parent::call($methodName, $request);
     }
 }

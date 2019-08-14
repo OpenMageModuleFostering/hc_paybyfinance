@@ -8,10 +8,10 @@
  *
  * @category  HC
  * @package   PayByFinance
- * @author    Healthy Websites <support@healthywebsites.co.uk>
+ * @author    Cohesion Digital <support@cohesiondigital.co.uk>
  * @copyright 2014 Hitachi Capital
  * @license   http://www.gnu.org/copyleft/gpl.html GPL License
- * @link      http://www.healthywebsites.co.uk/
+ * @link      http://www.cohesiondigital.co.uk/
  *
  */
 
@@ -20,9 +20,9 @@
  *
  * @category HC
  * @package  PayByFinance
- * @author   Healthy Websites <support@healthywebsites.co.uk>
+ * @author   Cohesion Digital <support@cohesiondigital.co.uk>
  * @license  http://www.gnu.org/copyleft/gpl.html GPL License
- * @link     http://www.healthywebsites.co.uk/
+ * @link     http://www.cohesiondigital.co.uk/
  */
 class HC_PayByFinance_Model_Observer
 {
@@ -35,6 +35,10 @@ class HC_PayByFinance_Model_Observer
      */
     public function enterpriseCacheClear($observer)
     {
+        if (!method_exists('Mage', 'getEdition') || Mage::getEdition() != 'Enterprise') {
+            // Not enterprise, do nothing.
+            return;
+        }
         $cache = Mage::getModel('enterprise_pagecache/cache');
         if ($cache) {
             $cache::getCacheInstance()->clean();
@@ -56,7 +60,6 @@ class HC_PayByFinance_Model_Observer
 
         $address = $observer->getEvent()->getAddress();
         $order = $observer->getEvent()->getOrder();
-        $financeAmount = $address->getFinanceAmount();
         $serviceId = Mage::getSingleton('paybyfinance/session')->getData('service');
         $deposit = Mage::getSingleton('paybyfinance/session')->getData('deposit');
         $items = $address->getAllItems();
@@ -81,6 +84,7 @@ class HC_PayByFinance_Model_Observer
 
         $amt = $finance->getFinanceAmount() * -1;
         if ($amt) {
+            $order->setCanSendNewEmailFlag(false);
             $finance->setUpdateTotals(true);
             // Use $finance->setUpdateTotals(false) to avoid Total Due to change
             Mage::dispatchEvent(
@@ -191,7 +195,11 @@ class HC_PayByFinance_Model_Observer
             'applicationNo' => $order->getFinanceApplicationNo(),
         );
         $post = Mage::getModel('paybyfinance/post');
-        $post->setPostAdapter(Mage::getStoreConfig($helper::XML_PATH_CONNECTION_MODE));
+        $post->setStoreId($order->getStoreId());
+        $post->setPostAdapter(
+            Mage::getStoreConfig($helper::XML_PATH_CONNECTION_MODE),
+            $order->getStoreId()
+        );
 
         $post->setNotificationData($data);
         $response = $post->post();
@@ -277,12 +285,15 @@ class HC_PayByFinance_Model_Observer
     {
         $cart = $observer->getPaypalCart();
         $order = $cart->getSalesEntity();
-        $address = $order->getShippingAddress();
-        if ($address->getFinanceAmount() != 0) {
+        $financed = $order->getFinanceAmount();
+        if (!$financed) {
+            $financed = $order->getShippingAddress()->getFinanceAmount();
+        }
+        if ($financed != 0) {
             $cart->addItem(
                 Mage::helper('paybyfinance')->__('Financed Amount'),
                 1,
-                $address->getFinanceAmount()
+                $financed
             );
         }
         return $this;
@@ -334,13 +345,18 @@ class HC_PayByFinance_Model_Observer
         if (Mage::getSingleton('paybyfinance/session')->getData('analytics_sent')) {
             return;
         }
-        $order = Mage::getModel('sales/order')->load(
-            Mage::getSingleton('paybyfinance/session')->getData('order_id')
-        );
-        $lastOrderId = $order->getId();
-        if (!is_numeric($lastOrderId)) {
-            return;
+        $helper = Mage::helper('paybyfinance');
+        $order = $helper->getOrder(Mage::app()->getRequest()->getParams());
+        if ($order === null) { // try to fetch order from session, old way, compatibility...
+            $order = Mage::getModel('sales/order')->load(
+                Mage::getSingleton('paybyfinance/session')->getData('order_id')
+            );
+            $lastOrderId = $order->getId();
+            if (!is_numeric($lastOrderId)) {
+                return;
+            }
         }
+
 
         $block = Mage::app()
             ->getFrontController()
@@ -349,7 +365,7 @@ class HC_PayByFinance_Model_Observer
             ->getBlock('google_analytics');
 
         if ($block) {
-            $block->setOrderIds(array($lastOrderId));
+            $block->setOrderIds(array($order->getId()));
             Mage::getSingleton('paybyfinance/session')->setData('analytics_sent', true);
         }
     }

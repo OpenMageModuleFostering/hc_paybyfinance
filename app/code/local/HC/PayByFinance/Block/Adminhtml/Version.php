@@ -8,10 +8,10 @@
  *
  * @category  HC
  * @package   PayByFinance
- * @author    Healthy Websites <support@healthywebsites.co.uk>
- * @copyright 2014 Healthy Websites
+ * @author    Cohesion Digital <support@cohesiondigital.co.uk>
+ * @copyright 2014 Cohesion Digital
  * @license   http://www.gnu.org/copyleft/gpl.html GPL License
- * @link      http://www.healthywebsites.co.uk/
+ * @link      http://www.cohesiondigital.co.uk/
  *
  */
 
@@ -22,14 +22,14 @@
  *
  * @category HC
  * @package  PayByFinance
- * @author   Healthy Websites <support@healthywebsites.co.uk>
+ * @author   Cohesion Digital <support@cohesiondigital.co.uk>
  * @license  http://www.gnu.org/copyleft/gpl.html GPL License
- * @link     http://www.healthywebsites.co.uk/
+ * @link     http://www.cohesiondigital.co.uk/
  */
 class HC_PayByFinance_Block_Adminhtml_Version extends Mage_Adminhtml_Block_Template
     implements Varien_Data_Form_Element_Renderer_Interface
 {
-    const PATCH_LEVEL = 1;
+    const PATCH_LEVEL = 2;
 
     protected $_template = "paybyfinance/version.phtml";
 
@@ -91,7 +91,7 @@ class HC_PayByFinance_Block_Adminhtml_Version extends Mage_Adminhtml_Block_Templ
 
         $res .= '<p>';
         $res .= 'Support reference: ' . $hash;
-        $res .= '<br/><a href="mailto:support@healthywebsites.co.uk?subject=Support&body='
+        $res .= '<br/><a href="mailto:support@cohesiondigital.co.uk?subject=Support&body='
             . $id . '%20ref:%20' . $hash . '%0D%0ADO NOT REMOVE THE ABOVE LINE'
             . '">Email support</a>';
         $res .= '</p>';

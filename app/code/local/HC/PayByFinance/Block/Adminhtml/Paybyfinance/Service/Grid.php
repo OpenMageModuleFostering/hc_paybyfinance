@@ -8,10 +8,10 @@
  *
  * @category  HC
  * @package   PayByFinance
- * @author    Healthy Websites <support@healthywebsites.co.uk>
- * @copyright 2014 Healthy Websites
+ * @author    Cohesion Digital <support@cohesiondigital.co.uk>
+ * @copyright 2014 Cohesion Digital
  * @license   http://www.gnu.org/copyleft/gpl.html GPL License
- * @link      http://www.healthywebsites.co.uk/
+ * @link      http://www.cohesiondigital.co.uk/
  *
  */
 
@@ -22,9 +22,9 @@
  *
  * @category HC
  * @package  PayByFinance
- * @author   Healthy Websites <support@healthywebsites.co.uk>
+ * @author   Cohesion Digital <support@cohesiondigital.co.uk>
  * @license  http://www.gnu.org/copyleft/gpl.html GPL License
- * @link     http://www.healthywebsites.co.uk/
+ * @link     http://www.cohesiondigital.co.uk/
  */
 class HC_PayByFInance_Block_Adminhtml_Paybyfinance_Service_Grid
     extends Mage_Adminhtml_Block_Widget_Grid
@@ -147,10 +147,19 @@ class HC_PayByFInance_Block_Adminhtml_Paybyfinance_Service_Grid
 
         $this->addColumn(
             'minimum_amount', array(
-                'header'    => $helper->__('Minimum Amount'),
+                'header'    => $helper->__('Minimum Loan Amount'),
                 'align'     => 'right',
                 'type'  => 'number',
                 'index'     => 'min_amount',
+            )
+        );
+
+        $this->addColumn(
+            'maximum_amount', array(
+                'header'    => $helper->__('Maximum Loan Amount'),
+                'align'     => 'right',
+                'type'  => 'number',
+                'index'     => 'max_amount',
             )
         );
 

@@ -8,10 +8,10 @@
  *
  * @category  HC
  * @package   PayByFinance
- * @author    Healthy Websites <support@healthywebsites.co.uk>
+ * @author    Cohesion Digital <support@cohesiondigital.co.uk>
  * @copyright 2014 Hitachi Capital
  * @license   http://www.gnu.org/copyleft/gpl.html GPL License
- * @link      http://www.healthywebsites.co.uk/
+ * @link      http://www.cohesiondigital.co.uk/
  *
  */
 
@@ -22,9 +22,9 @@
  *
  * @category HC
  * @package  PayByFinance
- * @author   Healthy Websites <support@healthywebsites.co.uk>
+ * @author   Cohesion Digital <support@cohesiondigital.co.uk>
  * @license  http://www.gnu.org/copyleft/gpl.html GPL License
- * @link     http://www.healthywebsites.co.uk/
+ * @link     http://www.cohesiondigital.co.uk/
  */
 class HC_PayByFinance_Block_Selector extends Mage_Core_Block_Template
 {
@@ -44,7 +44,7 @@ class HC_PayByFinance_Block_Selector extends Mage_Core_Block_Template
             $this->_services = Mage::getModel('paybyfinance/service')
                 ->getCollection()
                 ->storeFilter(Mage::app()->getStore()->getStoreId())
-                ->addPriceFilter($amount)
+                ->addPriceFilter($amount, $amount)
                 ->load();
         }
 
@@ -73,7 +73,7 @@ class HC_PayByFinance_Block_Selector extends Mage_Core_Block_Template
 
                 $calculator = Mage::getSingleton('paybyfinance/calculator');
                 $minInstallment = $calculator->getLowestMonthlyInstallment($this->_amount);
-                if (!$minInstallment) {
+                if ($minInstallment === false) {
                     return false;
                 }
             }
@@ -131,7 +131,8 @@ class HC_PayByFinance_Block_Selector extends Mage_Core_Block_Template
         if (!$helper->isActive()) {
             return '';
         }
-        if (!$this->getProduct() && $this->getServices()->getSize() == 0) {
+
+        if ($this->shouldEmptySelectorDisplay()) {
             $this->setTemplate('paybyfinance/selector-no.phtml');
         }
 
@@ -160,6 +161,25 @@ class HC_PayByFinance_Block_Selector extends Mage_Core_Block_Template
         $helper = Mage::helper('paybyfinance');
         $name = Mage::getStoreConfig($helper::XML_PATH_ACCOUNT_TRADINGNAME);
         return $name;
+    }
+
+    /**
+     * Should empty widget need to be displayed? Inverse function for isWidgetDisplayed()
+     *
+     * @return bool
+     */
+    private function shouldEmptySelectorDisplay()
+    {
+        // @codingStandardsIgnoreStart
+        // will test also product eligibility by calling
+        // Mage::helper('paybyfinance/cart')->getEligibleAmount() method
+        // @codingStandardsIgnoreLine
+        if ($this->getAmount() == false) {
+            return true;
+        }
+
+        // we are not on product page and no services will serve that cart
+        return (!$this->getProduct() && $this->getServices()->getSize() == 0);
     }
 
 }
