@@ -1,16 +1,19 @@
 {
-    "name": "OpenMageModuleFostering/HC_PayByFinance",
+    "name": "OpenMageModuleFostering\/HC_PayByFinance",
     "type": "magento-module",
     "license": "Cohesion-Digital",
     "homepage": "",
     "description": "Hitachi Capital PaybyFinance",
     "authors": [
-    {
-        "name": "Sandor Czettner",
-        "email": "support@cohesiondigital.co.uk"
-    }
-],
+        {
+            "name": "Sandor Czettner",
+            "email": "support@cohesiondigital.co.uk"
+        }
+    ],
     "suggest": {
-        "magento-hackathon/magento-composer-installer": "*"
-    }
+        "magento-hackathon\/magento-composer-installer": "*"
+    },
+    "keywords": [
+        "openmage-module"
+    ]
 }
